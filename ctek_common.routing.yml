@@ -1,0 +1,7 @@
+ctek_common.home:
+  path: '/home'
+  defaults:
+    _controller: '\Drupal\ctek_common\Controller\HomeController::index'
+    _title: 'Home'
+  requirements:
+    _permission: 'access content'

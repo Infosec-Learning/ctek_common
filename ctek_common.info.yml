@@ -1,5 +1,5 @@
 name: 'Common'
+description: 'Contains common interfaces, controllers, and annotations used by other Centretek modules.'
 package: 'Centretek'
 type: module
-dependencies:
 core: '8.x'

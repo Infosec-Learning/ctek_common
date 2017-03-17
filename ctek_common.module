@@ -1,0 +1,10 @@
+<?php
+
+function ctek_common_theme() {
+  return [
+    'four_oh_four' => [
+      'template' => 'four-oh-four',
+      'variables' => [],
+    ],
+  ];
+}
