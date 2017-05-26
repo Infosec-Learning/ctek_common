@@ -48,15 +48,15 @@ abstract class SFTPImporterBase implements ImporterInterface {
     $config = $this->config;
     $path = $config->get('path');
     $tempFilename = 'temporary://' . basename($path);
-//    $sftp = new SFTP($config->get('host'));
+    $sftp = new SFTP($config->get('host'));
     $this->log->info('Logging in to SFTP server.');
-//    if (!$sftp->login($config->get('username'), $config->get('password'))) {
-//      throw new \Exception('Unable to log in to SFTP server.');
-//    }
+    if (!$sftp->login($config->get('username'), $config->get('password'))) {
+      throw new \Exception('Unable to log in to SFTP server.');
+    }
     $this->log->info('Downloading file.');
-//    if (!$sftp->get($path, $tempFilename)) {
-//      throw new \Exception('Unable to download file.');
-//    }
+    if (!$sftp->get($path, $tempFilename)) {
+      throw new \Exception('Unable to download file.');
+    }
     $this->log->info('File downloaded.');
     $this->file = $tempFilename;
   }
