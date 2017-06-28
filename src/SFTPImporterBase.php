@@ -1,16 +1,11 @@
 <?php
-
-
 namespace Drupal\ctek_common;
 
-
-use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\State\StateInterface;
 use phpseclib\Net\SFTP;
-use Psr\Log\LogLevel;
+use Psr\Log\LoggerInterface;
 
 abstract class SFTPImporterBase implements ImporterInterface {
 
@@ -22,7 +17,7 @@ abstract class SFTPImporterBase implements ImporterInterface {
 
   abstract public function getKey();
 
-  public function __construct(ConfigFactoryInterface $configFactory, LoggerChannelInterface $log, StateInterface $state, FileSystemInterface $fileSystem) {
+  public function __construct(ConfigFactoryInterface $configFactory, LoggerInterface $log, StateInterface $state, FileSystemInterface $fileSystem) {
     $this->config = $configFactory->get($this->getKey() . '.settings');
     $this->log = $log;
     $this->state = $state;
