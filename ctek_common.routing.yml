@@ -5,3 +5,10 @@ ctek_common.home:
     _title: 'Home'
   requirements:
     _permission: 'access content'
+ctek_common.404:
+  path: '/404'
+  defaults:
+    _controller: '\Drupal\ctek_common\Controller\FourOhFourController::index'
+    _title: '404 Not Found'
+  requirements:
+    _permission: 'access content'
