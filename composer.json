@@ -1,5 +1,5 @@
 {
-  "name": "ctek/ctek-common",
+  "name": "ctek/ctek_common",
   "type": "drupal-custom-module",
   "require": {
     "phpseclib/phpseclib": "^2.0",
