@@ -1,8 +1,7 @@
 services:
-  ctek_common.twig.image:
-      class: Drupal\ctek_common\TwigExtension\Image
-      tags:
-        - { name: twig.extension }
+  ctek_common.menu_helper:
+    class: Drupal\ctek_common\Menu\MenuHelper
+    arguments: ['@plugin.manager.menu.link', '@menu.active_trail', '@menu.link_tree', '@entity_type.manager']
   plugin.manager.block_enhancer:
     class: Drupal\ctek_common\Block\BlockEnhancerPluginManager
     parent: default_plugin_manager

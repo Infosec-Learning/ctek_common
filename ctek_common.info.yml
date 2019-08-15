@@ -3,3 +3,8 @@ description: 'Contains common interfaces, controllers, and annotations used by o
 package: 'Centretek'
 type: module
 core: '8.x'
+dependencies:
+  - node
+  - block
+  - menu_link_content
+  - paragraphs
