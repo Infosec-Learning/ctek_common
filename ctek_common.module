@@ -1,5 +1,10 @@
 <?php
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Render\Element;
+use Drupal\ctek_common\Plugin\paragraphs\Behavior\ParagraphsBehaviorBase;
+use Drupal\paragraphs\ParagraphInterface;
+
 function ctek_common_theme() {
   return [
     'four_oh_four' => [
@@ -7,4 +12,82 @@ function ctek_common_theme() {
       'variables' => [],
     ],
   ];
+}
+
+function ctek_common_preprocess_block(&$vars) {
+  if (isset($vars['plugin_id'])) {
+    /** @var \Drupal\ctek_common\Block\BlockEnhancerPluginManager $blockEnhancerManager */
+    $blockEnhancerManager = \Drupal::service('plugin.manager.block_enhancer');
+    $blockEnhancerManager->enhanceBlock($vars);
+  }
+}
+
+
+function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\paragraphs\ParagraphsBehaviorManager $manager */
+  $manager = \Drupal::service('plugin.manager.paragraphs.behavior');
+  $definitions = $manager->getDefinitions();
+  foreach (Element::children($build) as $child) {
+    $field =& $build[$child];
+    if (isset($field['#field_type']) && $field['#field_type'] === 'image' && $field['#formatter'] === 'image') {
+      $parent = $entity;
+      $imageStyle = NULL;
+      do {
+        if ($parent instanceof ParagraphInterface) {
+          $parentParagraphType = $parent->getType();
+          if (isset($definitions[$parentParagraphType])) {
+            $paragraphBehaviorDefinition = $definitions[$parentParagraphType];
+            if (is_subclass_of($paragraphBehaviorDefinition['class'], ParagraphsBehaviorBase::class)) {
+              try {
+                /** @var ParagraphsBehaviorBase $paragraphBehavior */
+                $paragraphBehavior = $manager->createInstance($parentParagraphType);
+                $imageStyle = $paragraphBehavior->getImageStyle($entity, $field, $parent, $display, $view_mode);
+              } catch (\Exception $e) {
+
+              }
+            }
+          }
+          $parent = $parent->getParentEntity();
+        } else {
+          $parent = NULL;
+        }
+      } while ($imageStyle === NULL && $parent !== NULL);
+      if ($imageStyle) {
+        foreach (Element::children($field) as $image) {
+          $field[$image]['#image_style'] = $imageStyle;
+        }
+      }
+    }
+    $parent = NULL;
+    if (isset($field['#field_type']) && $field['#field_type'] === 'image' && $field['#formatter'] === 'responsive_image') {
+      $parent = $entity;
+      $imageStyle = NULL;
+      do {
+        if ($parent instanceof ParagraphInterface) {
+          $parentParagraphType = $parent->getType();
+          if (isset($definitions[$parentParagraphType])) {
+            $paragraphBehaviorDefinition = $definitions[$parentParagraphType];
+            if (is_subclass_of($paragraphBehaviorDefinition['class'], ParagraphsBehaviorBase::class)) {
+              try {
+                /** @var ParagraphsBehaviorBase $paragraphBehavior */
+                $paragraphBehavior = $manager->createInstance($parentParagraphType);
+                $imageStyle = $paragraphBehavior->getResponsiveImageStyle($entity, $field, $parent, $display, $view_mode);
+              } catch (\Exception $e) {
+
+              }
+            }
+          }
+          $parent = $parent->getParentEntity();
+        } else {
+          $parent = NULL;
+        }
+      } while ($imageStyle === NULL && $parent !== NULL);
+      if ($imageStyle) {
+        foreach (Element::children($field) as $image) {
+          $field[$image]['#responsive_image_style_id'] = $imageStyle;
+        }
+      }
+    }
+    $parent = NULL;
+  }
 }
