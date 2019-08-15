@@ -1,5 +1,0 @@
-services:
-  ctek_common.twig.image:
-      class: Drupal\ctek_common\TwigExtension\Image
-      tags:
-        - { name: twig.extension }
