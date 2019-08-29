@@ -5,3 +5,4 @@ services:
   plugin.manager.block_enhancer:
     class: Drupal\ctek_common\Block\BlockEnhancerPluginManager
     parent: default_plugin_manager
+

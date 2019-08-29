@@ -14,6 +14,41 @@ function ctek_common_theme() {
   ];
 }
 
+function ctek_common_preprocess(&$vars) {
+  switch ($vars['theme_hook_original']) {
+    case 'field':
+      if (isset($vars['entity_type'])) {
+        $entity = $vars['element']['#object'];
+        $vars['layout'] = ctek_common_get_layout($entity);
+      }
+      break;
+    case 'node':
+      if (isset($vars['node'])) {
+        $entity = $vars['node'];
+        $vars['layout'] = ctek_common_get_layout($entity);
+      }
+      break;
+    case 'paragraph':
+      if (isset($vars['paragraph'])) {
+        $entity = $vars['paragraph'];
+        $vars['layout'] = ctek_common_get_layout($entity);
+      }
+      break;
+  }
+}
+
+function ctek_common_get_layout(\Drupal\Core\Entity\ContentEntityInterface $entity) {
+  $layout = NULL;
+  if ($entity->hasField('field_layout')) {
+    $layout = $entity->get('field_layout')->value;
+  } elseif ($entity instanceof ParagraphInterface) {
+    if ($parent = $entity->getParentEntity()) {
+      $layout = ctek_common_get_layout($parent);
+    }
+  }
+  return $layout;
+}
+
 function ctek_common_preprocess_block(&$vars) {
   if (isset($vars['plugin_id'])) {
     /** @var \Drupal\ctek_common\Block\BlockEnhancerPluginManager $blockEnhancerManager */
