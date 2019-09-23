@@ -57,7 +57,6 @@ function ctek_common_preprocess_block(&$vars) {
   }
 }
 
-
 function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   /** @var \Drupal\paragraphs\ParagraphsBehaviorManager $manager */
   $manager = \Drupal::service('plugin.manager.paragraphs.behavior');
