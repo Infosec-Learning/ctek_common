@@ -5,4 +5,12 @@ services:
   plugin.manager.block_enhancer:
     class: Drupal\ctek_common\Block\BlockEnhancerPluginManager
     parent: default_plugin_manager
-
+  ctek_common.event_subscribers.profiler:
+    class: Drupal\ctek_common\EventSubscriber\ProfilerSubscriber
+    tags:
+      - { name: event_subscriber }
+  ctek_common.twig.injection:
+    arguments: ['@renderer']
+    class: Drupal\ctek_common\TwigExtension\Injection
+    tags:
+      - { name: twig.extension }

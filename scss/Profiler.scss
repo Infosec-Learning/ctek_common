@@ -1,0 +1,21 @@
+$profilerFontSize: 0.8rem;
+
+#ctek-common-profiler {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  padding: $profilerFontSize / 3;
+  background: rgba(0, 0, 0, 0.4);
+  font-size: $profilerFontSize;
+  line-height: $profilerFontSize;
+  font-family: monospace;
+  text-align: right;
+  white-space: pre;
+  div {
+    color: rgba(255, 255, 255, 0.6);
+    span {
+      color: rgba(255, 255, 255, 1);
+      margin-right: $profilerFontSize / 3;
+    }
+  }
+}

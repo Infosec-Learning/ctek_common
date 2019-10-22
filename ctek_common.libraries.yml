@@ -1,0 +1,11 @@
+drupal-behavior:
+  js:
+    public/js/DrupalBehavior.js: { minified: true }
+profiler:
+  css:
+    theme:
+      public/css/Profiler.css: { minified: true }
+  js:
+    public/js/Profiler.js: { minified: true }
+  dependencies:
+    - ctek_common/drupal-behavior

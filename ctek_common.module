@@ -1,43 +1,70 @@
 <?php
 
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Render\Element;
 use Drupal\ctek_common\Plugin\paragraphs\Behavior\ParagraphsBehaviorBase;
 use Drupal\paragraphs\ParagraphInterface;
 
-function ctek_common_theme() {
-  return [
-    'four_oh_four' => [
-      'template' => 'four-oh-four',
-      'variables' => [],
-    ],
-  ];
-}
-
 function ctek_common_preprocess(&$vars) {
+  $entity = NULL;
   switch ($vars['theme_hook_original']) {
     case 'field':
       if (isset($vars['entity_type'])) {
         $entity = $vars['element']['#object'];
-        $vars['layout'] = ctek_common_get_layout($entity);
+        $vars['attributes']['data-field-name'] = $vars['field_name'];
       }
+      $vars['tag'] = isset($vars['element']['#tag']) ? $vars['element']['#tag'] : 'div';
+      $vars['wrapper'] = isset($vars['element']['#wrapper']) ? $vars['element']['#wrapper'] : 'div';
       break;
     case 'node':
       if (isset($vars['node'])) {
         $entity = $vars['node'];
-        $vars['layout'] = ctek_common_get_layout($entity);
       }
       break;
     case 'paragraph':
       if (isset($vars['paragraph'])) {
         $entity = $vars['paragraph'];
-        $vars['layout'] = ctek_common_get_layout($entity);
+        $vars['attributes']['data-paragraph-type'] = $entity->bundle();
+        $tabs = [];
+        if ($entity->bundle() === 'tabs') {
+          foreach (Element::children($vars['content']['field_items']) as $index => $child) {
+            $id = Html::getUniqueId('tab') . '-' . ($index + 1);
+            $tab = $vars['content']['field_items'][$child]['#paragraph'];
+            if ($tab instanceof ParagraphInterface && $tab->bundle() === 'tab') {
+              $tabs[$id] = $tab->get('field_title')->getString();
+              $vars['content']['field_items'][$child]['#attributes']['id'] = $id;
+            }
+          }
+        }
+        $vars['tabs'] = $tabs;
       }
       break;
   }
+  if ($entity) {
+    ctek_common_inject_template($vars, $entity);
+  }
 }
 
-function ctek_common_get_layout(\Drupal\Core\Entity\ContentEntityInterface $entity) {
+function ctek_common_inject_template(array &$vars, ContentEntityInterface $entity) {
+  $vars['layout'] = ctek_common_get_layout($entity);
+  if (
+    $entity instanceof ParagraphInterface
+    &&
+    $entity->hasField('field_heading_type')
+    &&
+    $entity->hasField('field_title')
+    &&
+    isset($vars['field_name'])
+    &&
+    $vars['field_name'] === 'field_title'
+  ) {
+    $vars['tag'] = ctek_common_get_heading_tag($entity);
+  }
+}
+
+function ctek_common_get_layout(ContentEntityInterface $entity) {
   $layout = NULL;
   if ($entity->hasField('field_layout')) {
     $layout = $entity->get('field_layout')->value;
@@ -47,6 +74,14 @@ function ctek_common_get_layout(\Drupal\Core\Entity\ContentEntityInterface $enti
     }
   }
   return $layout;
+}
+
+function ctek_common_get_heading_tag(ContentEntityInterface $entity) {
+  $tag = NULL;
+  if ($entity->hasField('field_heading_type')) {
+    $tag = $entity->get('field_heading_type')->value;
+  }
+  return $tag;
 }
 
 function ctek_common_preprocess_block(&$vars) {
@@ -123,5 +158,16 @@ function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, E
       }
     }
     $parent = NULL;
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function ctek_common_page_attachments_alter(array &$attachments) {
+  $attachments['#attached']['library'][] = 'ctek_common/drupal-behavior';
+  $attachments['#attached']['drupalSettings']['env'] = $_ENV['CTEK_ENV'];
+  if (\Drupal::currentUser()->hasPermission('access administration pages')) {
+    $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
 }
