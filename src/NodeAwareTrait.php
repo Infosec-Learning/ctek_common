@@ -14,19 +14,14 @@ trait NodeAwareTrait {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getNode() {
+  public function getNode() : ?NodeInterface {
     if (!$this->node) {
       $request = \Drupal::request();
-      $node = $request->attributes->get('node');
-      if ($node) {
-        if (!is_object($node)) {
-          $node = \Drupal::entityTypeManager()
-            ->getStorage('node')
-            ->load($node);
-        }
-        if ($node instanceof NodeInterface) {
-          $this->node = $node;
-        }
+      $node = $request->get('node');
+      if ($node instanceof NodeInterface) {
+        $this->node = $node;
+      } else {
+        $this->node = NULL;
       }
     }
     return $this->node;

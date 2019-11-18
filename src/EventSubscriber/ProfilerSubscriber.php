@@ -27,14 +27,14 @@ class ProfilerSubscriber implements EventSubscriberInterface {
   /**
    * Begin logging database queries.
    */
-  public static function startDatabaseLog() {
+  public static function startDatabaseLog() : void {
     self::$log->start(self::DATABASE_KEY);
   }
 
   /**
    * Stop logging database queries.
    */
-  public static function stopDatabaseLog() {
+  public static function stopDatabaseLog() : void {
     self::$log->end(self::DATABASE_KEY);
   }
 
@@ -43,7 +43,7 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    *
    * @return array
    */
-  public static function getQueries() {
+  public static function getQueries() : array {
     return self::$log->get(self::DATABASE_KEY);
   }
 
@@ -53,7 +53,7 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    *
    * @return float
    */
-  public static function getElapsedTime() {
+  public static function getElapsedTime() : float {
     return microtime(true) - self::$start;
   }
 
@@ -62,7 +62,7 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
-  public function getRequest(GetResponseEvent $event) {
+  public function getRequest(GetResponseEvent $event) : void {
     if (!$event->isMasterRequest()) {
       return;
     }
@@ -79,8 +79,10 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    * information.
    *
    * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
+   *
+   * @throws \ReflectionException
    */
-  public function getResponse(FilterResponseEvent $event) {
+  public function getResponse(FilterResponseEvent $event) : void {
     $response = $event->getResponse();
     if (!$event->isMasterRequest() || !$response instanceof HtmlResponse) {
       return;
@@ -104,13 +106,12 @@ class ProfilerSubscriber implements EventSubscriberInterface {
 EOHTML;
 
     $event->getResponse()->setContent(str_replace('</body>', $html . '</body>', $event->getResponse()->getContent()));
-
   }
 
   /**
    * @inheritdoc
    */
-  public static function getSubscribedEvents() {
+  public static function getSubscribedEvents() : array {
     return [
       /** Run before everything. */
       KernelEvents::REQUEST => ['getRequest', 1001],

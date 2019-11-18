@@ -15,7 +15,7 @@ abstract class ParagraphsBehaviorBase extends BaseParagraphsBehaviorBase {
     ParagraphInterface $parent,
     EntityViewDisplayInterface $display,
     $view_mode
-  ) {
+  ) : ?string {
     return NULL;
   }
 
@@ -25,11 +25,11 @@ abstract class ParagraphsBehaviorBase extends BaseParagraphsBehaviorBase {
     ParagraphInterface $parent,
     EntityViewDisplayInterface $display,
     $view_mode
-  ) {
+  ) : ?string {
     return NULL;
   }
 
-  public static function isApplicable(ParagraphsType $paragraphs_type) {
+  public static function isApplicable(ParagraphsType $paragraphs_type) : bool {
     /** @var \Drupal\paragraphs\ParagraphsBehaviorManager $manager */
     $manager = \Drupal::service('plugin.manager.paragraphs.behavior');
     $definitions = $manager->getDefinitions();
@@ -39,6 +39,7 @@ abstract class ParagraphsBehaviorBase extends BaseParagraphsBehaviorBase {
         return $definition['id'] === $paragraphs_type->id();
       }
     }
+    return FALSE;
   }
 
 }

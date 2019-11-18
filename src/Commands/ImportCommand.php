@@ -52,11 +52,11 @@ abstract class ImportCommand extends DrushCommands {
     $this->fileSystem = $fileSystem;
   }
 
-  protected function isVerbose() {
+  protected function isVerbose() : bool {
     return $this->io()->isVerbose();
   }
 
-  protected function doImport(callable $callback) {
+  protected function doImport(callable $callback) : void {
     $io = $this->io();
     $io->success('Beginning import...');
     $transaction = $this->database->startTransaction();
@@ -153,7 +153,7 @@ abstract class ImportCommand extends DrushCommands {
     return $helper->execute();
   }
 
-  protected function conditionallyCreateTaxonomyTerm($vid, $termName) {
+  protected function conditionallyCreateTaxonomyTerm($vid, $termName) : ?TermInterface {
     $io = $this->io();
     $isVerbose = $this->isVerbose();
     $termCache = &drupal_static(__FUNCTION__);
@@ -202,7 +202,7 @@ abstract class ImportCommand extends DrushCommands {
     return $term;
   }
 
-  protected function generateHash($data) {
+  protected function generateHash($data) : string {
     return Crypt::hashBase64(static::VERSION . serialize($data));
   }
 
@@ -211,7 +211,7 @@ abstract class ImportCommand extends DrushCommands {
     $bundle,
     $idField,
     $id
-  ) {
+  ) : array {
     $io = $this->io();
     $isVerbose = $io->isVerbose();
     $hash = $this->generateHash($data);

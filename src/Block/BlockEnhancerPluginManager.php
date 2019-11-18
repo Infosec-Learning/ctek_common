@@ -34,7 +34,7 @@ class BlockEnhancerPluginManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'block_enhancer_plugins');
   }
 
-  public function enhanceBlock(array &$vars) {
+  public function enhanceBlock(array &$vars) : void {
     foreach ($this->getDefinitions() as $definition) {
       if ($definition['blockId'] === $vars['plugin_id']) {
         /** @var \Drupal\ctek_common\Block\BlockEnhancerInterface $blockEnhancer */

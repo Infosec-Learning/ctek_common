@@ -14,7 +14,7 @@ class Injection extends \Twig_Extension {
     ];
   }
 
-  public function inject(array $renderArray, string $key, string $value) {
+  public function inject(array $renderArray, string $key, string $value) : array {
     $renderArray['#' . $key] = $value;
     return $renderArray;
   }

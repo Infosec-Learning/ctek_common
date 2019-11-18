@@ -68,7 +68,7 @@ class NodeBlock extends NodeAwareBlockBase implements ContainerFactoryPluginInte
     $this->configuration['theme_suggestion'] = $form_state->getValue('theme_suggestion');
   }
 
-  public function build() {
+  public function build() : array {
     $build = parent::build();
     if (!$build) {
       return NULL;

@@ -14,3 +14,16 @@ services:
     class: Drupal\ctek_common\TwigExtension\Injection
     tags:
       - { name: twig.extension }
+  route_enhancer.model:
+    class: Drupal\ctek_common\Routing\Enhancer\ModelRouteEnhancer
+    tags:
+      - { name: route_enhancer, priority: -10 }
+  plugin.manager.model:
+    class: Drupal\ctek_common\Model\ModelPluginManager
+    parent: default_plugin_manager
+  cache.ctek_common.model:
+    class: Drupal\Core\Cache\CacheBackendInterface
+    tags:
+      - { name: cache.bin }
+    factory: cache_factory:get
+    arguments: [ctek_common.model]

@@ -58,7 +58,7 @@ class MenuHelper {
     $this->entityTypeManager = $entityTypeManager;
   }
 
-  public function getActiveLink($menu = NULL) {
+  public function getActiveLink($menu = NULL) : ?MenuLinkInterface {
     return $this->menuActiveTrail->getActiveLink($menu);
   }
 
@@ -66,7 +66,7 @@ class MenuHelper {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    * @return \Drupal\Core\Menu\MenuLinkInterface[]
    */
-  public function getLinksForEntity(EntityInterface $entity) {
+  public function getLinksForEntity(EntityInterface $entity) : array {
     $links = $this->menuLinkManager->loadLinksByRoute(
       'entity.' . $entity->getEntityTypeId() . '.canonical',
       [$entity->getEntityTypeId() => $entity->id()]
@@ -80,7 +80,7 @@ class MenuHelper {
    * @return \Drupal\Core\Menu\MenuLinkInterface[]
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  public function getParents(MenuLinkInterface $link, callable $filter = NULL) {
+  public function getParents(MenuLinkInterface $link, callable $filter = NULL) : array {
     $parents = [];
     while ($parent = $link->getParent()) {
       $link = $this->menuLinkManager->createInstance($parent);
@@ -92,7 +92,7 @@ class MenuHelper {
     return $parents;
   }
 
-  public function hasChildren(MenuLinkInterface $link) {
+  public function hasChildren(MenuLinkInterface $link) : bool {
     return count($this->menuLinkManager->getChildIds($link->getPluginId())) > 0;
   }
 
@@ -104,7 +104,7 @@ class MenuHelper {
     $ensureParents = FALSE,
     callable $transformCallback = NULL,
     $includeContextualLinks = TRUE
-  ) {
+  ) : array {
     $activeLink = $this->getActiveLink();
     if (!$root) {
       $root = $activeLink;
@@ -181,7 +181,7 @@ class MenuHelper {
     $expand = FALSE,
     callable $transformCallback = NULL,
     $includeContextualLinks = TRUE
-  ) {
+  ) : array {
     $params = $this->menuLinkTree->getCurrentRouteMenuTreeParameters($menuName);
     if ($minDepth) {
       $params->setMinDepth($minDepth);

@@ -12,11 +12,11 @@ abstract class BlockEnhancerPluginBase extends PluginBase implements BlockEnhanc
   /**
    * {@inheritdoc}
    */
-  public function label() {
+  public function label() : string {
     // Cast the label to a string since it is a TranslatableMarkup object.
     return (string) $this->pluginDefinition['label'];
   }
 
-  public function enhanceBlock(array &$vars) {}
+  public function enhanceBlock(array &$vars) : void {}
 
 }

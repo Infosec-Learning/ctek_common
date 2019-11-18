@@ -1,4 +1,4 @@
-name: 'Common'
+name: 'Centretek Common'
 description: 'Contains common interfaces, controllers, and annotations used by other Centretek modules.'
 package: 'Centretek'
 type: module

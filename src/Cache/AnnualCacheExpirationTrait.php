@@ -4,7 +4,7 @@ namespace Drupal\ctek_common\Cache;
 
 trait AnnualCacheExpirationTrait {
 
-  public function getCacheMaxAge() {
+  public static function getCacheMaxAge() : int {
     $now = new \DateTime();
     $year = intval($now->format('Y'));
     $exp = new \DateTime('1/1/' . ($year + 1));

@@ -13,8 +13,8 @@ interface BlockEnhancerInterface {
    * @return string
    *   The translated title.
    */
-  public function label();
+  public function label() : string;
 
-  public function enhanceBlock(array &$vars);
+  public function enhanceBlock(array &$vars) : void;
 
 }

@@ -4,54 +4,61 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Render\Element;
+use Drupal\ctek_common\Model\NodeModelInterface;
+use Drupal\ctek_common\Plugin\EntityReferenceSelection\NodeSelection;
 use Drupal\ctek_common\Plugin\paragraphs\Behavior\ParagraphsBehaviorBase;
 use Drupal\paragraphs\ParagraphInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeForm;
 
-function ctek_common_preprocess(&$vars) {
-  $entity = NULL;
-  switch ($vars['theme_hook_original']) {
-    case 'field':
-      if (isset($vars['entity_type'])) {
-        $entity = $vars['element']['#object'];
-        $vars['attributes']['data-field-name'] = $vars['field_name'];
-      }
-      $vars['tag'] = isset($vars['element']['#tag']) ? $vars['element']['#tag'] : 'div';
-      $vars['wrapper'] = isset($vars['element']['#wrapper']) ? $vars['element']['#wrapper'] : 'div';
-      break;
-    case 'node':
-      if (isset($vars['node'])) {
-        $entity = $vars['node'];
-      }
-      break;
-    case 'paragraph':
-      if (isset($vars['paragraph'])) {
-        $entity = $vars['paragraph'];
-        $vars['attributes']['data-paragraph-type'] = $entity->bundle();
-        $tabs = [];
-        if ($entity->bundle() === 'tabs') {
-          foreach (Element::children($vars['content']['field_items']) as $index => $child) {
-            $id = Html::getUniqueId('tab') . '-' . ($index + 1);
-            $tab = $vars['content']['field_items'][$child]['#paragraph'];
-            if ($tab instanceof ParagraphInterface && $tab->bundle() === 'tab') {
-              $tabs[$id] = $tab->get('field_title')->getString();
-              $vars['content']['field_items'][$child]['#attributes']['id'] = $id;
-            }
-          }
-        }
-        $vars['tabs'] = $tabs;
-      }
-      break;
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Injects model and layout into template variables.
+ *
+ * @param $vars
+ */
+function ctek_common_preprocess_node(&$vars) {
+  /** @var NodeInterface $entity */
+  $entity = $vars['node'];
+  /** @var \Drupal\ctek_common\Model\ModelPluginManager $modelManager */
+  $modelManager = \Drupal::service('plugin.manager.model');
+  $model = $modelManager->wrap($entity);
+  if ($model instanceof NodeModelInterface) {
+    $vars['model'] = $model;
   }
-  if ($entity) {
-    ctek_common_inject_template($vars, $entity);
-  }
+  $vars['layout'] = ctek_common_get_layout($entity);
 }
 
-function ctek_common_inject_template(array &$vars, ContentEntityInterface $entity) {
-  $vars['layout'] = ctek_common_get_layout($entity);
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Sets some attributes. Injects layout into template variables. Injects some
+ * paragraph type specific variables.
+ *
+ * @param $vars
+ */
+function ctek_common_preprocess_paragraph(&$vars) {
+  /** @var ParagraphInterface $entity */
+  $entity = $vars['paragraph'];
+  $vars['attributes']['data-paragraph-type'] = $entity->bundle();
+  $vars['attributes']['data-paragraph-view-mode'] = $vars['view_mode'];
+  switch ($entity->bundle()) {
+    case 'tabs':
+      $tabs = [];
+      foreach (Element::children($vars['content']['field_items']) as $index => $child) {
+        $id = Html::getUniqueId('tab') . '-' . ($index + 1);
+        $tab = $vars['content']['field_items'][$child]['#paragraph'];
+        if ($tab instanceof ParagraphInterface && $tab->bundle() === 'tab') {
+          $tabs[$id] = $tab->get('field_title')->getString();
+          $vars['content']['field_items'][$child]['#attributes']['id'] = $id;
+        }
+      }
+      $vars['tabs'] = $tabs;
+      break;
+  }
   if (
-    $entity instanceof ParagraphInterface
-    &&
     $entity->hasField('field_heading_type')
     &&
     $entity->hasField('field_title')
@@ -60,11 +67,40 @@ function ctek_common_inject_template(array &$vars, ContentEntityInterface $entit
     &&
     $vars['field_name'] === 'field_title'
   ) {
-    $vars['tag'] = ctek_common_get_heading_tag($entity);
+    $vars['tag'] = $entity->get('field_heading_type')->value;
+  }
+  $vars['layout'] = ctek_common_get_layout($entity);
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * If present, injects tag and wrapper variables specified by parent element
+ * template. Injects layout variable if present.
+ *
+ * @param $vars
+ */
+function ctek_common_preprocess_field(&$vars) {
+  $vars['attributes']['data-field-name'] = $vars['field_name'];
+  $vars['tag'] = isset($vars['element']['#tag']) ? $vars['element']['#tag'] : 'div';
+  $vars['wrapper'] = isset($vars['element']['#wrapper']) ? $vars['element']['#wrapper'] : 'div';
+  if (isset($vars['entity_type'])) {
+    $entity = $vars['element']['#object'];
+    if ($entity instanceof ContentEntityInterface) {
+      $vars['layout'] = ctek_common_get_layout($entity);
+    }
   }
 }
 
-function ctek_common_get_layout(ContentEntityInterface $entity) {
+/**
+ * Retrieves the layout for a given entity. For paragraphs, will traverse the
+ * hierarchy until it finds the first parent with a layout field.
+ *
+ * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+ *
+ * @return string|null
+ */
+function ctek_common_get_layout(ContentEntityInterface $entity) : ?string {
   $layout = NULL;
   if ($entity->hasField('field_layout')) {
     $layout = $entity->get('field_layout')->value;
@@ -76,14 +112,11 @@ function ctek_common_get_layout(ContentEntityInterface $entity) {
   return $layout;
 }
 
-function ctek_common_get_heading_tag(ContentEntityInterface $entity) {
-  $tag = NULL;
-  if ($entity->hasField('field_heading_type')) {
-    $tag = $entity->get('field_heading_type')->value;
-  }
-  return $tag;
-}
-
+/**
+ * Applies BlockEnhancer plugins.
+ *
+ * @param $vars
+ */
 function ctek_common_preprocess_block(&$vars) {
   if (isset($vars['plugin_id'])) {
     /** @var \Drupal\ctek_common\Block\BlockEnhancerPluginManager $blockEnhancerManager */
@@ -92,6 +125,16 @@ function ctek_common_preprocess_block(&$vars) {
   }
 }
 
+/**
+ * Implements hook_ENTITY_view().
+ *
+ * Applies Paragraph Behavior plugins.
+ *
+ * @param array $build
+ * @param \Drupal\paragraphs\ParagraphInterface $entity
+ * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
+ * @param $view_mode
+ */
 function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   /** @var \Drupal\paragraphs\ParagraphsBehaviorManager $manager */
   $manager = \Drupal::service('plugin.manager.paragraphs.behavior');
@@ -163,6 +206,10 @@ function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, E
 
 /**
  * Implements hook_page_attachments_alter().
+ *
+ * Attach libraries.
+ *
+ * @param array $attachments
  */
 function ctek_common_page_attachments_alter(array &$attachments) {
   $attachments['#attached']['library'][] = 'ctek_common/drupal-behavior';
@@ -170,4 +217,112 @@ function ctek_common_page_attachments_alter(array &$attachments) {
   if (\Drupal::currentUser()->hasPermission('access administration pages')) {
     $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
+}
+
+/**
+ * Implements hook_entity_reference_selection_alter().
+ *
+ * Use our own entity selection class for nodes.
+ *
+ * @param $info
+ */
+function ctek_common_entity_reference_selection_alter(&$info) {
+  $info['default:node']['class'] = NodeSelection::class;
+}
+
+function ctek_common_form_node_form_alter(&$form, FormStateInterface &$form_state, $form_id) {
+  $form['#process'][] = 'ctek_common_form_node_form_process';
+  if ($form_id === 'node_page_edit_form') {
+    //    $form['#attached']['library'][] = 'ctek_common/paragraph-type-fixes';
+  }
+//  $form['menu']['link']['menu_link_weight']['#process'][] = 'ctek_common_menu_link_content_element_process';
+}
+
+function ctek_common_form_node_form_process(&$form, FormStateInterface &$form_state) {
+  if (isset($form['#fieldgroups']['group_tabs'])) {
+    $form['#theme'] = 'ctek_common_node_edit_form';
+    ctek_common_build_fieldgroup('group_menu_url', 'Menu & URL', $form, $form_state, function(array &$form){
+      $form['#fieldgroups']['group_menu_url']->children[] = 'menu';
+      $form['#group_children']['menu'] = 'group_menu_url';
+      $form['menu']['#type'] = 'container';
+      $form['menu']['#group'] = 'group_menu_url';
+      $form['#fieldgroups']['group_menu_url']->children[] = 'path';
+      $form['#group_children']['path'] = 'group_menu_url';
+      $form['path']['#group'] = 'group_menu_url';
+      $form['path']['#weight'] = -101;
+      $form['#fieldgroups']['group_menu_url']->children[] = 'url_redirects';
+      $form['#group_children']['url_redirects'] = 'group_menu_url';
+      $form['url_redirects']['#group'] = 'group_menu_url';
+      $form['url_redirects']['#weight'] = -100;
+      foreach (Element::children($form['path']['widget']) as $index) {
+        $form['path']['widget'][$index]['#group'] = 'group_menu_url';
+        $form['path']['widget'][$index]['#type'] = 'container';
+      }
+      $form['#fieldgroups']['group_menu_url']->children[] = 'simple_sitemap';
+      $form['#group_children']['simple_sitemap'] = 'group_menu_url';
+      $form['simple_sitemap']['#type'] = 'container';
+      $form['simple_sitemap']['#group'] = 'group_menu_url';
+    });
+    ctek_common_build_fieldgroup('group_advanced', 'Advanced', $form, $form_state, function(array &$form){
+      $form['#fieldgroups']['group_advanced']->children[] = 'options';
+      $form['#group_children']['options'] = 'group_advanced';
+      $form['options']['#type'] = 'container';
+      $form['options']['#group'] = 'group_advanced';
+      $form['#fieldgroups']['group_advanced']->children[] = 'author';
+      $form['#group_children']['author'] = 'group_advanced';
+      $form['author']['#type'] = 'container';
+      $form['author']['#group'] = 'group_advanced';
+    });
+    ctek_common_build_fieldgroup('group_revision_info', 'Revision Information', $form, $form_state, function(array &$form){
+      $form['#fieldgroups']['group_revision_info']->children[] = 'meta';
+      $form['#group_children']['meta'] = 'group_revision_info';
+      $form['meta']['#type'] = 'container';
+      $form['meta']['#group'] = 'group_revision_info';
+      $form['#fieldgroups']['group_revision_info']->children[] = 'revision_log';
+      $form['#group_children']['revision_log'] = 'group_revision_info';
+      $form['revision_log']['#group'] = 'group_revision_info';
+    });
+    if (isset($form['field_meta_tags'])) {
+      ctek_common_build_fieldgroup('group_meta', 'Meta Tags', $form, $form_state, function(array &$form){
+        $form['#fieldgroups']['group_meta']->children[] = 'field_meta_tags';
+        $form['#group_children']['field_meta_tags'] = 'group_meta';
+        foreach (Element::children($form['field_meta_tags']['widget']) as $index) {
+          $form['field_meta_tags']['widget'][$index]['#group'] = 'group_meta';
+          $form['field_meta_tags']['widget'][$index]['#type'] = 'container';
+        }
+      });
+    }
+  }
+  return $form;
+}
+
+function ctek_common_build_fieldgroup($groupName, $groupLabel, &$form, FormStateInterface $formState, callable $attachChildren) {
+  $formObject = $formState->getFormObject();
+  if (!$formObject instanceof NodeForm) {
+    return;
+  }
+  if (!isset($form['#fieldgroups'][$groupName])) {
+    $form['#fieldgroups'][$groupName] = (object)[
+      'children' => [],
+      'parent_name' => 'group_tabs',
+      'weight' => 1000,
+      'format_type' => 'tab',
+      'format_settings' => [
+        'id' => '',
+        'classes' => '',
+        'formatter' => 'closed',
+        'description' => '',
+        'required_fields' => TRUE,
+      ],
+      'label' => $groupLabel,
+      'group_name' => $groupName,
+      'entity_type' => $formObject->getEntity()->getEntityTypeId(),
+      'bundle' =>  $formObject->getEntity()->bundle(),
+      'context' => 'form',
+      'mode' => $formObject->getFormDisplay($formState)->getMode(),
+    ];
+    $form['#fieldgroups']['group_tabs']->children[] = $groupName;
+    $form['#group_children'][$groupName] = 'group_tabs';
+  }
+  $attachChildren($form);
 }
