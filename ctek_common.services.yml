@@ -27,3 +27,18 @@ services:
       - { name: cache.bin }
     factory: cache_factory:get
     arguments: [ctek_common.model]
+  ctek_common.breadcrumb:
+    class: Drupal\ctek_common\Breadcrumb\PathBasedBreadcrumbWithTitle
+    arguments:
+      - '@request_stack'
+      - '@router.request_context'
+      - '@access_manager'
+      - '@router'
+      - '@path_processor_manager'
+      - '@config.factory'
+      - '@title_resolver'
+      - '@current_user'
+      - '@path.current'
+      - '@path.matcher'
+    tags:
+      - { name: breadcrumb_builder, priority: 100 }
