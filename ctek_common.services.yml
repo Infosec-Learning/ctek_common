@@ -14,6 +14,11 @@ services:
     class: Drupal\ctek_common\TwigExtension\Injection
     tags:
       - { name: twig.extension }
+  ctek_common.twig.unique-id:
+    arguments: ['@renderer']
+    class: Drupal\ctek_common\TwigExtension\UniqueId
+    tags:
+      - { name: twig.extension }
   route_enhancer.model:
     class: Drupal\ctek_common\Routing\Enhancer\ModelRouteEnhancer
     tags:

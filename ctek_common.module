@@ -93,6 +93,18 @@ function ctek_common_preprocess_field(&$vars) {
 }
 
 /**
+ * Implements hook_preprocess_HOOK().
+ *
+ * If present, wrapper variable specified by parent element
+ * template.
+ *
+ * @param $vars
+ */
+function ctek_common_preprocess_form_element(&$vars) {
+  $vars['wrapper'] = isset($vars['element']['#wrapper']) ? $vars['element']['#wrapper'] : 'div';
+}
+
+/**
  * Retrieves the layout for a given entity. For paragraphs, will traverse the
  * hierarchy until it finds the first parent with a layout field.
  *

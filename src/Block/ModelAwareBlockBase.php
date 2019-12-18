@@ -28,4 +28,29 @@ abstract class ModelAwareBlockBase extends BlockBase {
     return AccessResult::allowedIf($this->getModel() instanceof ModelInterface);
   }
 
+  public function getCacheContexts() {
+    $model = $this->getModel();
+    if (!$model) {
+      return parent::getCacheContexts();
+    }
+    $contexts = Cache::mergeContexts(['url.path'], $model->getCacheContexts());
+    return Cache::mergeContexts($contexts, parent::getCacheContexts());
+  }
+
+  public function getCacheTags() {
+    $model = $this->getModel();
+    if (!$model) {
+      return parent::getCacheTags();
+    }
+    return Cache::mergeTags($model->getCacheTags(), parent::getCacheTags());
+  }
+
+  public function getCacheMaxAge() {
+    $model = $this->getModel();
+    if (!$model) {
+      return parent::getCacheMaxAge();
+    }
+    return Cache::mergeMaxAges($model->getCacheMaxAge(), parent::getCacheMaxAge());
+  }
+
 }
