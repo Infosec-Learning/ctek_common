@@ -20,7 +20,10 @@ class Injection extends \Twig_Extension {
     return $renderArray;
   }
 
-  public function bare(array $renderArray) : array {
+  public function bare($renderArray) : ?array {
+    if (!is_array($renderArray)) {
+      return NULL;
+    }
     $renderArray['#tag'] = '';
     $renderArray['#wrapper'] = '';
     return $renderArray;
