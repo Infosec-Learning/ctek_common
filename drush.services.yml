@@ -1,0 +1,14 @@
+services:
+  ctek_common.commands.check-import-status:
+    class: \Drupal\ctek_common\Commands\ImportStatusCommand
+    arguments:
+      - '@entity_type.manager'
+      - '@renderer'
+      - '@http_client'
+      - '@database'
+      - '@file_system'
+      - '@plugin.manager.mail'
+      - '@state'
+      - '@config.factory'
+    tags:
+      - { name: drush.command }

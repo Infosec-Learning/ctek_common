@@ -2,7 +2,7 @@
 
 namespace Drupal\ctek_common\Model;
 
-interface NodeModelInterface extends ModelInterface {
+interface NodeModelInterface extends ModelInterface, UrlAliasProviderInterface {
 
   public function getTitle() : string;
 

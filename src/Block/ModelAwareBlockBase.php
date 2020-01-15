@@ -15,7 +15,7 @@ use Drupal\node\NodeInterface;
 abstract class ModelAwareBlockBase extends BlockBase {
   use ModelAwareTrait;
 
-  public function build() : array {
+  public function build() : ?array {
     $model = $this->getModel();
     if (!$model instanceof ModelInterface) {
       return NULL;

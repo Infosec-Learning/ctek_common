@@ -9,9 +9,8 @@ abstract class UrlParameterFormBase extends FormBase {
 
   public abstract function getParametersForRoute();
 
-  public function getRouteNameForRedirect() {
-    $currentRoute = \Drupal::routeMatch();
-    return $currentRoute->getRouteName();
+  public function getRouteNameForRedirect(FormStateInterface $form_state) {
+    return '<current>';
   }
 
   public function getRouteValuesForRedirect(FormStateInterface $form_state) {
@@ -39,12 +38,12 @@ abstract class UrlParameterFormBase extends FormBase {
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($form_state->getTriggeringElement()['#name'] === 'clear') {
-      $form_state->setRedirect('<current>');
+      $form_state->setRedirect($this->getRouteNameForRedirect($form_state));
       return;
     }
     $currentRoute = \Drupal::routeMatch();
     $params = $currentRoute->getRawParameters();
-    $form_state->setRedirect($this->getRouteNameForRedirect(), (array)$params->getIterator() + $this->getRouteValuesForRedirect($form_state));
+    $form_state->setRedirect($this->getRouteNameForRedirect($form_state), (array)$params->getIterator() + $this->getRouteValuesForRedirect($form_state));
   }
 
 }

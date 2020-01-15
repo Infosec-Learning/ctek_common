@@ -58,6 +58,7 @@ class PathBasedBreadcrumbWithTitle extends PathBasedBreadcrumbBuilder {
     $title = $this->titleResolver->getTitle($request,  $route_match->getRouteObject());
     $breadcrumb->addLink(new Link($title, Url::fromRoute('<nolink>')));
     $breadcrumb->addCacheContexts($parentBreadcrumb->getCacheContexts());
+    $breadcrumb->addCacheContexts(['url.path']);
     $breadcrumb->addCacheTags($parentBreadcrumb->getCacheTags());
     $breadcrumb->mergeCacheMaxAge($parentBreadcrumb->getCacheMaxAge());
     return $breadcrumb;

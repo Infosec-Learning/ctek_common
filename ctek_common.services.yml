@@ -32,6 +32,9 @@ services:
       - { name: cache.bin }
     factory: cache_factory:get
     arguments: [ctek_common.model]
+  plugin.manager.site-section:
+    class: Drupal\ctek_common\SiteSection\SiteSectionPluginManager
+    parent: default_plugin_manager
   ctek_common.breadcrumb:
     class: Drupal\ctek_common\Breadcrumb\PathBasedBreadcrumbWithTitle
     arguments:
