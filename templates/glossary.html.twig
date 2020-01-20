@@ -1,0 +1,11 @@
+<ul>
+  {% for letter in letters %}
+    <li>
+      {% if letter.count %}
+        <a href="{{ letter.url }}">{{ letter.value }}{{ showCount ? '(' ~ letter.count ~ ')' : '' }}</a>
+      {% else %}
+        <span>{{ letter.value }}</span>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
