@@ -5,7 +5,9 @@ namespace Drupal\ctek_common\Model;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\TypedData\Plugin\DataType\Map;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\taxonomy\TermInterface;
@@ -77,19 +79,54 @@ abstract class ModelBase extends PluginBase implements ModelInterface {
     return $data;
   }
 
-  protected function getTermsFormatted(EntityReferenceFieldItemListInterface $items, callable $callback = NULL) : array {
-      $terms = [];
-      foreach ($items as $term) {
-        $term = $term->entity;
-        if ($term instanceof TermInterface) {
-          if ($callback) {
-            $terms[] = $callback($term);
-          } else {
-            $terms[] = $term->getName();
-          }
-        }
-      }
-      return $terms;
+  protected function getOne(
+    string $field,
+    callable $valueCallback = NULL,
+    $defaultValue = NULL
+  ) {
+    $entity = $this->getEntity();
+    if (!$entity->hasField($field)) {
+      return $defaultValue;
+    }
+    $field = $entity->get($field);
+    if ($field->count() === 0) {
+      return $defaultValue;
+    }
+    $value = $field->first();
+    return $valueCallback ? $valueCallback($value) : $value->value;
+  }
+
+  protected function getAll(
+    string $field,
+    callable $valueCallback = NULL,
+    $defaultValue = NULL
+  ) : array {
+    $values = [];
+    $entity = $this->getEntity();
+    if (!$entity->hasField($field)) {
+      return $defaultValue;
+    }
+    $field = $entity->get($field);
+    if ($field->count() === 0) {
+      return $defaultValue;
+    }
+    /** @var \Drupal\Core\Field\FieldItemInterface $value */
+    foreach ($field as $value) {
+      $values[] = $valueCallback ? $valueCallback($value) : $value->value;
+    }
+    return $values;
+  }
+
+  protected function getReferencedEntity(
+    EntityReferenceItem $item,
+    callable $valueCallback = NULL,
+    $defaultValue = NULL
+  ) {
+    $entity = $item->entity;
+    if ($entity === NULL) {
+      return $defaultValue;
+    }
+    return $valueCallback ? $valueCallback($entity) : $entity;
   }
 
 }
