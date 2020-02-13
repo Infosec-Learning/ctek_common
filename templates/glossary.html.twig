@@ -1,8 +1,8 @@
-<ul>
+<ul class="glossary">
   {% for letter in letters %}
     <li>
       {% if letter.count %}
-        <a href="{{ letter.url }}">{{ letter.value }}{{ showCount ? '(' ~ letter.count ~ ')' : '' }}</a>
+        {{ letter.link }}
       {% else %}
         <span>{{ letter.value }}</span>
       {% endif %}

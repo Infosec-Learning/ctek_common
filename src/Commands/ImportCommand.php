@@ -485,12 +485,11 @@ abstract class ImportCommand extends DrushCommands  implements ContainerAwareInt
   }
 
   protected function saveDownloadedFile($url, $destination, $contentTypes = []) {
-    $logger = $this->logger();
     $tempFilename = $this->fileSystem->tempnam('temporary://', 'import-downloads');
     $temp = fopen($tempFilename, 'w');
     $response = $this->httpGetReliably($url);
     if (count($contentTypes) > 0 && count(array_intersect($response->getHeader('Content-Type'), $contentTypes)) === 0) {
-      $logger->warning('Got unexpected content type(s): {type}', ['type' => join(', ', $response->getHeader('Content-Type'))]);
+      throw new \Exception('Got unexpected content type(s): ' . join(', ', $response->getHeader('Content-Type')));
     }
     $body = $response->getBody();
     while ($body->isReadable() && !$body->eof()) {
@@ -503,9 +502,10 @@ abstract class ImportCommand extends DrushCommands  implements ContainerAwareInt
       'status' => 1,
     ]);
     $extension = pathinfo($url, PATHINFO_EXTENSION);
+    $this->ensureDestination($destination);
     $file = file_copy($file, $destination . '/' . $file->getFilename() . '.' . $extension, FileSystemInterface::EXISTS_REPLACE);
     if (!$file) {
-      $logger->error('Unable to save file.');
+      throw new \Exception('Unable to save file.');
     }
     return $file;
   }

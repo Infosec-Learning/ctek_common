@@ -7,17 +7,6 @@ use Drupal\Core\Entity\Annotation\EntityReferenceSelection;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\node\Plugin\EntityReferenceSelection\NodeSelection as BaseNodeSelection;
 
-/**
- * Increases number of results returned, and sorts exact matches before partial.
- *
- * @EntityReferenceSelection(
- *   id = "ctek_common:node",
- *   label = @Translation("User selection"),
- *   entity_types = {"node"},
- *   group = "default",
- *   weight = 2
- * )
- */
 class NodeSelection extends BaseNodeSelection {
 
   protected $match;

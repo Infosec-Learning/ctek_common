@@ -29,6 +29,7 @@ class Glossary extends RenderElement {
 
   public static function preRender($element) {
     $url = $element['#url'];
+    $showCount = $element['#showCount'];
     if (!$url instanceof Url) {
       $url = Url::fromRoute('<current>', \Drupal::request()->query->all());
     }
@@ -36,7 +37,15 @@ class Glossary extends RenderElement {
       $count = [
         'value' => Markup::create($letter),
         'count' => Markup::create($count),
-        'url' => Markup::create($url->mergeOptions(['query' => ['letter' => $letter, 'page' => 0]])->toString()),
+        'link' => [
+          '#type' => 'link',
+          '#title' => $letter . ($showCount ? "($count)" : ''),
+          '#url' => (clone $url)->mergeOptions([
+            // '0' must be a string because dumb reasons in active-link.js.
+            'query' => ['letter' => $letter, 'page' => '0'],
+            'set_active_class' => TRUE,
+          ])
+        ],
       ];
     }
     return $element;

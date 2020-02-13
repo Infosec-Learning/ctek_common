@@ -58,7 +58,7 @@ class ReliabilityHelper {
   }
 
   public function execute() {
-    if ($this->throttle) {
+    if ($this->throttle && $this->maxExecutions > 0 && $this->timePeriodMilliseconds > 0) {
       $wait = $this->timeWindow->getEstimate($this->key, $this->maxExecutions, $this->timePeriodMilliseconds);
       if ($wait > 0 && $this->waitCallback) {
         ($this->waitCallback)($wait);
@@ -70,7 +70,7 @@ class ReliabilityHelper {
       $backoff = new Backoff($this->backoffMaxAttempts, $backoffStrategy);
       if ($this->backoffErrorHandler) {
         $backoff->setErrorHandler(function(\Exception $exception, $attempt, $maxAttempts) use ($backoffStrategy) {
-          ($this->backoffErrorHandler)($exception, $attempt, $maxAttempts, $backoffStrategy->getWaitTime($attempt));
+          ($this->backoffErrorHandler)($exception, $attempt, $maxAttempts, $backoffStrategy);
         });
       }
       return $backoff->run($this->callback);

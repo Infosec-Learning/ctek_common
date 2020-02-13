@@ -99,7 +99,7 @@ abstract class ModelBase extends PluginBase implements ModelInterface {
   protected function getAll(
     string $field,
     callable $valueCallback = NULL,
-    $defaultValue = NULL
+    $defaultValue = []
   ) : array {
     $values = [];
     $entity = $this->getEntity();
