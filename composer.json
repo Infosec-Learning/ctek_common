@@ -16,5 +16,13 @@
         "willdurand/geocoder": "^3.3",
         "drupal/swiftmailer": "^1.0",
         "drupal/mailsystem": "^4.2"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ]
 }
