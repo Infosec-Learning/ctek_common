@@ -112,6 +112,14 @@ abstract class ImportCommand extends DrushCommands  implements ContainerAwareInt
     return 'ctek_common.import.' . strtolower(str_replace(' ', '_', $name));
   }
 
+  /**
+   * @TODO optional email
+   *
+   * @param string $name
+   * @param callable $callback
+   *
+   * @throws \Exception
+   */
   protected function doImport(string $name, callable $callback) {
     $logger = $this->logger();
     $logger->notice('Beginning import {importname}', ['importname' => $name]);

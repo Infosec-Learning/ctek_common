@@ -3,6 +3,7 @@
 namespace Drupal\ctek_common\Model;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -21,6 +22,8 @@ abstract class ModelBase extends PluginBase implements ModelInterface {
     return \Drupal::cache(static::CACHE_BIN);
   }
 
+  public static function onRebuild() {}
+
   public static function getCacheId($functionName, ...$params) : string {
     return get_called_class() . '::' . $functionName . '(' . join(', ', $params) . ')';
   }
@@ -30,7 +33,9 @@ abstract class ModelBase extends PluginBase implements ModelInterface {
 
   public function __construct(array $configuration, string $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entity = $configuration['entity'];
+    if (isset($configuration['entity'])) {
+      $this->entity = $configuration['entity'];
+    }
   }
 
   public function getEntity() : ContentEntityInterface {

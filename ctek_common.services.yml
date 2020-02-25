@@ -50,3 +50,11 @@ services:
       - '@path.matcher'
     tags:
       - { name: breadcrumb_builder, priority: 100 }
+  ctek_common.batch_manager:
+    class: Drupal\ctek_common\Batch\BatchManager
+  logger.ctek_common.batch_logger:
+    class: Drupal\ctek_common\Logger\BatchLogger
+    arguments:
+      - '@logger.log_message_parser'
+    tags:
+      - { name: logger }

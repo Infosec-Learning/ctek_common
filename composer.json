@@ -13,6 +13,8 @@
         "stechstudio/backoff": "^1.0.1",
         "suramon/simple-xml-reader": "^1.2.2",
         "symfony/string": "5.0.0-RC1",
-        "willdurand/geocoder": "^3.3"
+        "willdurand/geocoder": "^3.3",
+        "drupal/swiftmailer": "^1.0",
+        "drupal/mailsystem": "^4.2"
     }
 }

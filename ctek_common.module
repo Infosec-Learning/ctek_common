@@ -3,9 +3,12 @@
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\Element;
+use Drupal\ctek_common\Import\ImporterInterface;
+use Drupal\ctek_common\Model\ImportableModelInterface;
 use Drupal\ctek_common\Model\NodeModelInterface;
-use Drupal\ctek_common\Model\UrlAliasProviderInterface;
 use Drupal\ctek_common\Plugin\EntityReferenceSelection\NodeSelection;
 use Drupal\ctek_common\Plugin\paragraphs\Behavior\ParagraphsBehaviorBase;
 use Drupal\paragraphs\ParagraphInterface;
@@ -23,6 +26,40 @@ function ctek_common_theme() {
       ],
     ],
   ];
+}
+
+function ctek_common_entity_base_field_info_alter(&$fields, EntityTypeInterface $entityType) {
+  if (!is_subclass_of($entityType->getClass(), ContentEntityInterface::class)) {
+    return;
+  }
+  /** @var \Drupal\ctek_common\Model\ModelPluginManager $modelPluginManager */
+  $modelPluginManager = \Drupal::service('plugin.manager.model');
+  $definitions = $modelPluginManager->getDefinitions();
+  foreach ($definitions as $definition) {
+    if ($definition['entityType'] === $entityType->id() && is_subclass_of($definition['class'], ImportableModelInterface::class)) {
+      $fields[ImportableModelInterface::IMPORT_TRACKING_ID_FIELD] = BaseFieldDefinition::create('string')
+        ->setTargetEntityTypeId($entityType->id())
+        ->setName(ImportableModelInterface::IMPORT_TRACKING_ID_FIELD)
+        ->setLabel('Import Id');
+      $fields[ImportableModelInterface::IMPORT_TRACKING_HASH_FIELD] = BaseFieldDefinition::create('string')
+        ->setTargetEntityTypeId($entityType->id())
+        ->setName(ImportableModelInterface::IMPORT_TRACKING_HASH_FIELD)
+        ->setLabel('Import Hash');
+      return;
+    }
+  }
+}
+
+/**
+ * Implements hook_rebuild().
+ */
+function ctek_common_rebuild() {
+  /** @var \Drupal\ctek_common\Model\ModelPluginManager $modelPluginManager */
+  $modelPluginManager = \Drupal::service('plugin.manager.model');
+  foreach ($modelPluginManager->getDefinitions() as $definition) {
+    $model = $definition['class'];
+    $model::onRebuild();
+  }
 }
 
 /**
@@ -388,4 +425,16 @@ function ctek_common_tokens($type, $tokens, array $data, array $options, Bubblea
     }
   }
   return $replacements;
+}
+
+
+function ctek_common_mail($key, &$message, $params) {
+  switch ($key) {
+    case ImporterInterface::MAIL_KEY_IMPORT_EXCEPTION:
+      $message['subject'] = $params['subject'];
+      $message['body'] = $params['body'];
+      $message['headers']['Cc'] = join(',', $params['notifyees']);
+      $message['headers']['Content-Type'] = 'text/html';
+      break;
+  }
 }

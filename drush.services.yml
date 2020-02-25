@@ -1,5 +1,5 @@
 services:
-  ctek_common.commands.check-import-status:
+  ctek_common.commands.check_import_status:
     class: \Drupal\ctek_common\Commands\ImportStatusCommand
     arguments:
       - '@entity_type.manager'
@@ -10,5 +10,16 @@ services:
       - '@plugin.manager.mail'
       - '@state'
       - '@config.factory'
+    tags:
+      - { name: drush.command }
+  ctek_common.commands.entity_updates:
+    class: \Drupal\ctek_common\Commands\EntityUpdateCommand
+    arguments:
+      - '@entity.definition_update_manager'
+      - '@entity_type.manager'
+      - '@entity_field.manager'
+      - '@field_storage_definition.listener'
+      - '@entity.last_installed_schema.repository'
+      - '@entity_type.listener'
     tags:
       - { name: drush.command }
