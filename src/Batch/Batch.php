@@ -26,17 +26,21 @@ class Batch {
     return $uuidGenerator->generate();
   }
 
-  public static function getBatch() : ?Batch {
+  public static function getCurrentBatch() : ?Batch {
     if (!static::$currentBatch) {
       $sets = batch_get();
       if (isset($sets['current_set'])) {
         $context = $sets['sets'][$sets['current_set']];
-        static::$currentBatch = static::createFromContext($context);
-      } else {
-        static::$currentBatch = new static();
+        if (isset($context['results']['state'][static::STATE_KEY_ID])) {
+          static::$currentBatch = static::createFromContext($context);
+        }
       }
     }
     return static::$currentBatch;
+  }
+
+  public static function createBatch() : Batch {
+    return new static();
   }
 
   protected static function createFromContext($context) {
@@ -65,7 +69,7 @@ class Batch {
 
   public static function wrapCallback($callback, ...$arguments) {
     $context = end($arguments);
-    $batch = static::getBatch();
+    $batch = static::getCurrentBatch();
     if (!$batch || !$batch->isRunning()) {
       return;
     }

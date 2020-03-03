@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\OutputStyle;
 use Symfony\Component\Console\Terminal;
 
-abstract class ImportCommand extends DrushCommands  implements ContainerAwareInterface {
+abstract class ImportCommand extends DrushCommands implements ContainerAwareInterface {
   use ContainerAwareTrait;
 
   const VERSION = 0;

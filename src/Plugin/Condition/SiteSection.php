@@ -90,7 +90,7 @@ class SiteSection extends ConditionPluginBase implements ContainerFactoryPluginI
     if (in_array(static::SITE_SECTION_NONE, $this->configuration['site_section'])) {
       return count($currentSections) === 0;
     } else {
-      return count($currentSections) > 0;
+      return count(array_intersect($this->configuration['site_section'], array_keys($currentSections))) > 0;
     }
   }
 

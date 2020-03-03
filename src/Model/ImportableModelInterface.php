@@ -2,8 +2,6 @@
 
 namespace Drupal\ctek_common\Model;
 
-use Drupal\ctek_gathercontent\Api\Model\ItemDetails;
-
 interface ImportableModelInterface extends ModelInterface {
 
   const NEW = 1;
@@ -23,7 +21,7 @@ interface ImportableModelInterface extends ModelInterface {
     ImportRecordInterface $importData
   );
 
-  public static function upsert(ItemDetails $itemDetails) : ImportableModelInterface;
+  public static function upsert(ImportRecordInterface $record) : ImportableModelInterface;
 
   public static function getVersion() : int;
 

@@ -40,7 +40,7 @@ trait ImporterTrait {
     $batch = static::batchManager()->createBatch();
     $batch->config->add(
       $config + [
-        static::CONFIG_KEY_SEND_MAIL => TRUE,
+        static::CONFIG_KEY_SEND_MAIL => FALSE,
       ]
     );
     $batch->config->set(static::STATE_KEY_HALTED, FALSE);

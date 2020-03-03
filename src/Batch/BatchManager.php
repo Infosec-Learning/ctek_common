@@ -7,14 +7,8 @@ use Drupal\ctek_common\Logger\BatchLogger;
 
 class BatchManager {
 
-  public static function generateBatchId() {
-    /** @var \Drupal\Component\Uuid\UuidInterface $uuidGenerator */
-    $uuidGenerator = \Drupal::service('uuid');
-    return $uuidGenerator->generate();
-  }
-
   public function createBatch() {
-    $batch = Batch::getBatch();
+    $batch = Batch::createBatch();
     if ($batch->isRunning()) {
       throw new \LogicException('Cannot create new batch while one is already running.');
     }
