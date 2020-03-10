@@ -20,12 +20,6 @@ trait ImportableModelTrait {
    */
   public static function onRebuild() {
     parent::onRebuild();
-    /** @var \Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface $lastInstalledSchemaRepository */
-    $lastInstalledSchemaRepository = \Drupal::service('entity.last_installed_schema.repository');
-    /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager */
-    $entityFieldManager = \Drupal::service('entity_field.manager');
-    /** @var \Drupal\Core\Field\FieldStorageDefinitionListenerInterface $fieldStorageDefinitionListener */
-    $fieldStorageDefinitionListener = \Drupal::service('field_storage_definition.listener');
     /** @var \Drupal\ctek_common\Model\ModelPluginManager $modelPluginManager */
     $modelPluginManager = \Drupal::service('plugin.manager.model');
     $definitions = $modelPluginManager->getDefinitions();
@@ -33,6 +27,8 @@ trait ImportableModelTrait {
     if (count($changeList) === 0) {
       return;
     }
+    /** @var \Drupal\ctek_common\Entity\EntityUpdateHelper $entityUpdateHelper */
+    $entityUpdateHelper = \Drupal::service('ctek_common.entity_update_helper');
     foreach ($definitions as $definition) {
       $entityTypeId = $definition['entityType'];
       if (
@@ -40,24 +36,10 @@ trait ImportableModelTrait {
         && isset($changeList[$entityTypeId])
       ) {
         $changes = $changeList[$definition['entityType']];
-        $fieldStorageDefinitions = $entityFieldManager->getFieldStorageDefinitions($entityTypeId);
-        $originalFieldStorageDefinitions = $lastInstalledSchemaRepository->getLastInstalledFieldStorageDefinitions($entityTypeId);
         if (isset($changes['field_storage_definitions'])) {
           foreach ($changes['field_storage_definitions'] as $fieldName => $change) {
             if (in_array($fieldName, ImportableModelInterface::IMPORT_TRACKING_FIELDS)) {
-              $fieldStorageDefinition = isset($fieldStorageDefinitions[$fieldName]) ? $fieldStorageDefinitions[$fieldName] : NULL;
-              $originalFieldStorageDefinition = isset($originalFieldStorageDefinitions[$fieldName]) ? $originalFieldStorageDefinitions[$fieldName] : NULL;
-              switch ($change) {
-                case EntityDefinitionUpdateManagerInterface::DEFINITION_CREATED:
-                  $fieldStorageDefinitionListener->onFieldStorageDefinitionCreate($fieldStorageDefinition);
-                  break;
-                case EntityDefinitionUpdateManagerInterface::DEFINITION_UPDATED:
-                  $fieldStorageDefinitionListener->onFieldStorageDefinitionUpdate($fieldStorageDefinition, $originalFieldStorageDefinition);
-                  break;
-                case EntityDefinitionUpdateManagerInterface::DEFINITION_DELETED:
-                  $fieldStorageDefinitionListener->onFieldStorageDefinitionDelete($originalFieldStorageDefinition);
-                  break;
-              }
+              $entityUpdateHelper->update($entityTypeId, $fieldName);
             }
           }
         }

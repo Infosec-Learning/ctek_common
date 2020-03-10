@@ -58,3 +58,10 @@ services:
       - '@logger.log_message_parser'
     tags:
       - { name: logger }
+  ctek_common.entity_update_helper:
+    class: Drupal\ctek_common\Entity\EntityUpdateHelper
+    arguments:
+      - '@entity.last_installed_schema.repository'
+      - '@entity_field.manager'
+      - '@field_storage_definition.listener'
+      - '@entity.definition_update_manager'
