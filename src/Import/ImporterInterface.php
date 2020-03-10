@@ -39,7 +39,7 @@ interface ImporterInterface {
   /**
    * @param \Drupal\ctek_common\Batch\Batch $batch
    *
-   * @return \Drupal\ctek_common\Import\ImportJob[]
+   * @return \Drupal\ctek_common\Import\ImportJobInterface[]
    */
   public static function init(Batch $batch) : array;
 

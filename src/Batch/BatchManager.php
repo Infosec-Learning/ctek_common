@@ -7,6 +7,14 @@ use Drupal\ctek_common\Logger\BatchLogger;
 
 class BatchManager {
 
+  public function getCurrentBatch() {
+    $batch = Batch::getCurrentBatch();
+    if ($batch && $batch->isRunning()) {
+      return $batch;
+    }
+    return NULL;
+  }
+
   public function createBatch() {
     $batch = Batch::createBatch();
     if ($batch->isRunning()) {

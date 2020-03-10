@@ -6,7 +6,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Logger\LogMessageParserInterface;
 use Drupal\Core\Logger\RfcLoggerTrait;
 use Drupal\ctek_common\Batch\Batch;
-use Drupal\ctek_common\Batch\BatchManager;
 use Drupal\ctek_common\Batch\BatchManagerTrait;
 use Psr\Log\LoggerInterface;
 
@@ -20,7 +19,18 @@ class BatchLogger implements LoggerInterface {
     static::$batch = $batch;
   }
 
-  const LOG_FILE_PREFIX = 'temporary://batch-log-';
+  protected static function getLogFilename($id) {
+    return join('', [
+      static::LOG_FILE_BASE_DIR,
+      static::LOG_FILE_PREFIX,
+      $id,
+      static::LOG_FILE_SUFFIX
+    ]);
+  }
+
+  const LOG_FILE_BASE_DIR = 'temporary://';
+  const LOG_FILE_PREFIX = 'batch-log-';
+  const LOG_FILE_SUFFIX = '.log';
 
   protected $parser;
 
@@ -37,11 +47,10 @@ class BatchLogger implements LoggerInterface {
   }
 
   public function log($level, $message, array $context = []) {
-    $batch = static::$batch ?: Batch::getCurrentBatch();
+    $batch = static::$batch ?: static::batchManager()->getCurrentBatch();
     if ($batch) {
       if (!$this->logFile) {
-        $path = static::LOG_FILE_PREFIX . $batch->getId();
-        $this->logFile = fopen($path, 'a');
+        $this->logFile = fopen(static::getLogFilename($batch->getId()), 'a');
       }
       $messagePlaceholders = $this->parser->parseMessagePlaceholders($message, $context);
       $message = empty($messagePlaceholders) ? $message : strtr($message, $messagePlaceholders);
@@ -58,7 +67,7 @@ class BatchLogger implements LoggerInterface {
   }
 
   public static function getLog($id) : BatchLog {
-    return new BatchLog(new \SplFileObject(static::LOG_FILE_PREFIX . $id));
+    return new BatchLog(new \SplFileObject(static::getLogFilename($id)));
   }
 
 }

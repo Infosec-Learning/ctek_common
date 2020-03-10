@@ -45,13 +45,10 @@ trait ImporterTrait {
     );
     $batch->config->set(static::STATE_KEY_HALTED, FALSE);
     $batch->addOperation([static::class, 'start']);
-    /** @var \Drupal\ctek_common\Import\ImportJob $job */
+    /** @var \Drupal\ctek_common\Import\ImportJobInterface $job */
     try {
       foreach (static::init($batch) as $job) {
-        /** @var \Drupal\ctek_common\Import\ImportOperation $operation */
-        foreach ($job->getOperations() as $operation) {
-          $batch->addOperation([static::class, 'wrapCallback'], $operation->getCallback(), $operation);
-        }
+        $job->createOperations($batch, [static::class, 'wrapCallback']);
       }
     } catch (\Exception $e) {
       $message = Markup::create(StringUtils::interpolate("Importer failed to start: !importer\nEncountered unhandled exception: !message", [
@@ -92,10 +89,10 @@ trait ImporterTrait {
     static::logger()->notice('Running importer: !importer', ['!importer' => static::getName()]);
   }
 
-  public static function wrapCallback(Batch $batch, callable $callback, ImportOperation $importOperation, ...$arguments) {
+  public static function wrapCallback(Batch $batch, callable $callback, ...$arguments) {
     try {
       static::logger()->debug('Calling: !callback', ['!callback' => $callback[0] . '::' . $callback[1]]);
-      $callback($batch, $importOperation, ...$arguments);
+      $callback($batch, ...$arguments);
     } catch (\Exception $e) {
       static::logger()->error('Callback threw an unhandled exception: !message', ['!message' => $e->getMessage()]);
       if (static::haltOnUnhandledException()) {
