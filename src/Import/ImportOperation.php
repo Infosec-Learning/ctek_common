@@ -16,7 +16,7 @@ class ImportOperation {
     callable $callback,
     int $page,
     int $totalPages,
-    ImportJob $job
+    ImportJobInterface $job
   ) {
     $this->callback = $callback;
     $this->page = $page;
@@ -47,9 +47,9 @@ class ImportOperation {
 
 
   /**
-   * @return \Drupal\ctek_common\Import\ImportJob
+   * @return \Drupal\ctek_common\Import\ImportJobInterface
    */
-  public function getJob() : ImportJob {
+  public function getJob() : ImportJobInterface {
     return $this->job;
   }
 

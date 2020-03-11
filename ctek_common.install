@@ -4,7 +4,7 @@ function ctek_common_update_8800() {
   /** @var \Drupal\user\RoleStorageInterface $roleStorage */
   $roleStorage = \Drupal::entityTypeManager()->getStorage('user_role');
   $role = $roleStorage->create([
-    'id' => \Drupal\ctek_common\Commands\ImportCommand::IMPORT_NOTIFYEE_ROLE,
+    'id' => \Drupal\ctek_common\Import\ImporterInterface::IMPORT_NOTIFYEE_ROLE,
     'label' => 'Import Notifyee',
   ]);
   $role->save();
