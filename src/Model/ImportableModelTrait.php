@@ -47,6 +47,35 @@ trait ImportableModelTrait {
     }
   }
 
+  public static function getImportableModel(ImportRecordInterface $record) {
+    /** @var \Drupal\ctek_common\Model\ModelPluginManager $modelPluginManager */
+    $modelPluginManager = \Drupal::service('plugin.manager.model');
+    $definitions = array_filter($modelPluginManager->getDefinitions(), function($definition){
+      return $definition['class'] === static::class;
+    });
+    $definition = reset($definitions);
+    if (!$definition) {
+      throw new \LogicException();
+    }
+    /** @var \Drupal\ctek_common\Model\ImportableModelInterface $plugin */
+    $plugin = $modelPluginManager->createInstance($definition['id']);
+    /** @var $node \Drupal\node\NodeInterface */
+    [$node, $status] = static::getNewOrExisting($plugin, $record);
+    $model = $modelPluginManager->wrap($node);
+    if (!$model instanceof static) {
+      throw new \LogicException();
+    }
+    if ($status === ImportableModelInterface::EXISTING_UNCHANGED) {
+      static::logger()->notice('No changes detected for !label', ['!label' => $definition['title']]);
+    } else {
+      static::logger()->notice('!action !label', [
+        '!label' => $definition['title'],
+        '!action' => $status === ImportableModelInterface::NEW ? 'Saving new' : 'Updating',
+      ]);
+    }
+    return [$model, $status];
+  }
+
   public static function getNewOrExisting(
     ImportableModelInterface $plugin,
     ImportRecordInterface $importData
