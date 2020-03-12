@@ -279,8 +279,8 @@ function ctek_common_page_attachments_alter(array &$attachments) {
   if (\Drupal::currentUser()->hasPermission('access administration pages')) {
     $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
-  $gtmId = $_ENV['CTEK_GTM_ID'];
-  if ($gtmId && $_ENV['CTEK_ENV'] === 'prod') {
+  if (isset($_ENV['CTEK_GTM_ID']) && $_ENV['CTEK_ENV'] === 'prod') {
+    $gtmId = $_ENV['CTEK_GTM_ID'];
     $script = <<<EOJS
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
