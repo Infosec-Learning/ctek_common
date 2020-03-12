@@ -1,12 +1,8 @@
 <?php
 
-namespace Drupal\ctek_common\Import;
+namespace Drupal\ctek_common\Batch;
 
-use Drupal\ctek_common\Batch\Batch;
-use Drupal\ctek_common\Logger\BatchLog;
-use Psr\Log\LoggerInterface;
-
-interface ImporterInterface {
+interface ManagedBatchProcessInterface {
 
   const BATCH_SIZE = 50;
 
@@ -24,25 +20,27 @@ interface ImporterInterface {
     self::STATUS_COMPLETE => 'Complete',
   ];
 
-  const IMPORT_NOTIFYEE_ROLE = 'import_notifyees';
+  const LEGACY_IMPORT_NOTIFYEE_ROLE = 'import_notifyees';
 
   const CONFIG_KEY_SEND_MAIL = 'sendMail';
 
   const STATE_KEY_HALTED = 'halted';
 
-  const MAIL_KEY_IMPORT_EXCEPTION = 'import_exception';
+  const MAIL_KEY_UNHANDLED_EXCEPTION = 'import_exception';
 
   public static function getName() : string;
 
   public static function haltOnUnhandledException() : bool;
 
   /**
-   * @param \Drupal\ctek_common\Batch\Batch $batch
+   * @param \Drupal\ctek_common\Batch\ManagedBatch $batch
    *
-   * @return \Drupal\ctek_common\Import\ImportJobInterface[]
+   * @return \Drupal\ctek_common\Batch\ManagedBatchJobInterface[]
    */
-  public static function init(Batch $batch) : array;
+  public static function init(ManagedBatch $batch) : array;
 
-  public static function import(array $config = []);
+  public static function process(array $config = []);
+
+  public static function getNotifyees(ManagedBatch $batch) : array;
 
 }

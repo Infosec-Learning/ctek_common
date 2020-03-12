@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\ctek_common\Import;
+namespace Drupal\ctek_common\Batch;
 
-class PagedImportOperation {
+class PagedBatchOperation {
 
   protected $page;
 
@@ -11,7 +11,7 @@ class PagedImportOperation {
   protected $job;
 
   public function __construct(
-    PagedImportJob $job,
+    PagedBatchJob $job,
     int $page,
     int $totalPages
   ) {
@@ -57,9 +57,9 @@ class PagedImportOperation {
 
 
   /**
-   * @return \Drupal\ctek_common\Import\ImportJobInterface
+   * @return \Drupal\ctek_common\Batch\ManagedBatchJobInterface
    */
-  public function getJob() : ImportJobInterface {
+  public function getJob() : ManagedBatchJobInterface {
     return $this->job;
   }
 

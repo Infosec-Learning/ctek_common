@@ -1,11 +1,10 @@
 <?php
 
-namespace Drupal\ctek_common\Import;
+namespace Drupal\ctek_common\Batch;
 
-use Drupal\ctek_common\Batch\Batch;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-interface ImportJobInterface {
+interface ManagedBatchJobInterface {
 
   public static function create(callable $callback);
 
@@ -13,6 +12,6 @@ interface ImportJobInterface {
 
   public function arguments() : ParameterBag;
 
-  public function createOperations(Batch $batch, callable $wrapper = NULL);
+  public function createOperations(ManagedBatch $batch, callable $wrapper = NULL);
 
 }

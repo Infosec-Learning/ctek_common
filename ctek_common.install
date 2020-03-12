@@ -1,10 +1,12 @@
 <?php
 
+use Drupal\ctek_common\Batch\ManagedBatchProcessInterface;
+
 function ctek_common_update_8800() {
   /** @var \Drupal\user\RoleStorageInterface $roleStorage */
   $roleStorage = \Drupal::entityTypeManager()->getStorage('user_role');
   $role = $roleStorage->create([
-    'id' => \Drupal\ctek_common\Import\ImporterInterface::IMPORT_NOTIFYEE_ROLE,
+    'id' => ManagedBatchProcessInterface::LEGACY_IMPORT_NOTIFYEE_ROLE,
     'label' => 'Import Notifyee',
   ]);
   $role->save();
@@ -18,4 +20,10 @@ function ctek_common_update_8801() {
   }
   $pathautoConfig->set('safe_tokens', $safeTokens);
   $pathautoConfig->save();
+}
+
+function ctek_common_update_8802() {
+  /** @var \Drupal\user\RoleStorageInterface $roleStorage */
+  $roleStorage = \Drupal::entityTypeManager()->getStorage('user_role');
+  $roleStorage->delete([$roleStorage->load(ManagedBatchProcessInterface::LEGACY_IMPORT_NOTIFYEE_ROLE)]);
 }

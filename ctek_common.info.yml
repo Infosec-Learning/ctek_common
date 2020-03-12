@@ -8,3 +8,5 @@ dependencies:
   - block
   - menu_link_content
   - paragraphs
+  - mailsystem
+  - swiftmailer

@@ -1,10 +1,8 @@
 <?php
 
-namespace Drupal\ctek_common\Import;
+namespace Drupal\ctek_common\Batch;
 
-use Drupal\ctek_common\Batch\Batch;
-
-class PagedImportJob extends ImportJobBase {
+class PagedBatchJob extends ManagedBatchJobBase {
 
   const PAGE_INDEX_0 = 0;
   const PAGE_INDEX_1 = 1;
@@ -27,7 +25,7 @@ class PagedImportJob extends ImportJobBase {
     $this->setTotal(0);
   }
 
-  public function setPage(int $page) : PagedImportJob {
+  public function setPage(int $page) : PagedBatchJob {
     $this->page = $page;
     return $this;
   }
@@ -36,7 +34,7 @@ class PagedImportJob extends ImportJobBase {
     return $this->page;
   }
 
-  public function setPageIndex($pageIndex) : PagedImportJob {
+  public function setPageIndex($pageIndex) : PagedBatchJob {
     $this->pageIndex = $pageIndex;
     $this->setPage($pageIndex);
     return $this;
@@ -56,9 +54,9 @@ class PagedImportJob extends ImportJobBase {
   /**
    * @param int $pageSize
    *
-   * @return PagedImportJob
+   * @return PagedBatchJob
    */
-  public function setPageSize(int $pageSize) : PagedImportJob {
+  public function setPageSize(int $pageSize) : PagedBatchJob {
     $this->pageSize = $pageSize;
     return $this;
   }
@@ -73,20 +71,20 @@ class PagedImportJob extends ImportJobBase {
   /**
    * @param int $total
    *
-   * @return PagedImportJob
+   * @return PagedBatchJob
    */
-  public function setTotal(int $total): PagedImportJob {
+  public function setTotal(int $total): PagedBatchJob {
     $this->total = $total;
     return $this;
   }
 
-  public function createOperations(Batch $batch, callable $wrapper = NULL) {
+  public function createOperations(ManagedBatch $batch, callable $wrapper = NULL) {
     $totalPages = ceil($this->getTotal() / $this->getPageSize());
     for ($i = 0; $i < $totalPages; $i++) {
       $batch->addOperation(
         $wrapper,
         $this->callback,
-        new PagedImportOperation(
+        new PagedBatchOperation(
           $this,
           $i + $this->getPageIndex(),
           $totalPages

@@ -2,11 +2,13 @@
 
 namespace Drupal\ctek_common\Import;
 
-use Drupal\ctek_common\Batch\Batch;
+use Drupal\ctek_common\Batch\ManagedBatch;
+use Drupal\ctek_common\Batch\ManagedBatchProcessInterface;
+use Drupal\ctek_common\Batch\ManagedBatchProcessTrait;
 use Drupal\file\FileInterface;
 
-abstract class FileUploadImportBase implements ImporterInterface {
-  use ImporterTrait;
+abstract class FileUploadImportBase implements ManagedBatchProcessInterface {
+  use ManagedBatchProcessTrait;
 
   const CONFIG_KEY_FILE = 'file';
 
@@ -16,7 +18,7 @@ abstract class FileUploadImportBase implements ImporterInterface {
     return static::$file;
   }
 
-  public static function init(Batch $batch): array {
+  public static function init(ManagedBatch $batch): array {
     $file = $batch->config->get(static::CONFIG_KEY_FILE);
     if (!$file instanceof FileInterface) {
       throw new \InvalidArgumentException('Invalid file.');

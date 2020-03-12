@@ -6,7 +6,7 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\Element;
-use Drupal\ctek_common\Import\ImporterInterface;
+use Drupal\ctek_common\Batch\ManagedBatchProcessInterface;
 use Drupal\ctek_common\Model\ImportableModelInterface;
 use Drupal\ctek_common\Model\NodeModelInterface;
 use Drupal\ctek_common\Plugin\EntityReferenceSelection\NodeSelection;
@@ -279,6 +279,24 @@ function ctek_common_page_attachments_alter(array &$attachments) {
   if (\Drupal::currentUser()->hasPermission('access administration pages')) {
     $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
+  $gtmId = $_ENV['CTEK_GTM_ID'];
+  if ($gtmId && $_ENV['CTEK_ENV'] === 'prod') {
+    $script = <<<EOJS
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-{$gtmId}');
+EOJS;
+
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'script',
+        '#value' => $script,
+      ],
+      'gtm',
+    ];
+  }
 }
 
 /**
@@ -429,10 +447,9 @@ function ctek_common_tokens($type, $tokens, array $data, array $options, Bubblea
   return $replacements;
 }
 
-
 function ctek_common_mail($key, &$message, $params) {
   switch ($key) {
-    case ImporterInterface::MAIL_KEY_IMPORT_EXCEPTION:
+    case ManagedBatchProcessInterface::MAIL_KEY_UNHANDLED_EXCEPTION:
       $message['subject'] = $params['subject'];
       $message['body'] = $params['body'];
       $message['headers']['Cc'] = join(',', $params['notifyees']);
@@ -440,3 +457,4 @@ function ctek_common_mail($key, &$message, $params) {
       break;
   }
 }
+

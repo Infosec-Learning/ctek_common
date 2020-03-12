@@ -2,13 +2,10 @@
 
 namespace Drupal\ctek_common\Batch;
 
-use Drupal\Core\Batch\BatchBuilder;
-use Drupal\ctek_common\Logger\BatchLogger;
-
 class BatchManager {
 
   public function getCurrentBatch() {
-    $batch = Batch::getCurrentBatch();
+    $batch = ManagedBatch::getCurrentBatch();
     if ($batch && $batch->isRunning()) {
       return $batch;
     }
@@ -16,14 +13,14 @@ class BatchManager {
   }
 
   public function createBatch() {
-    $batch = Batch::createBatch();
+    $batch = ManagedBatch::createBatch();
     if ($batch->isRunning()) {
       throw new \LogicException('Cannot create new batch while one is already running.');
     }
     return $batch;
   }
 
-  public function run(Batch $batch) {
+  public function run(ManagedBatch $batch) {
     if ($batch->isRunning()) {
       throw new \LogicException('Cannot run batch that is already running.');
     }

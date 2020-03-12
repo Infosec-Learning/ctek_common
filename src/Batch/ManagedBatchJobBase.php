@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\ctek_common\Import;
+namespace Drupal\ctek_common\Batch;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-abstract class ImportJobBase implements ImportJobInterface {
+abstract class ManagedBatchJobBase implements ManagedBatchJobInterface {
 
   public static function create(callable $callback) {
     return new static($callback);

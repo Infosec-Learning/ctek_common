@@ -5,7 +5,7 @@ namespace Drupal\ctek_common\Logger;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Logger\LogMessageParserInterface;
 use Drupal\Core\Logger\RfcLoggerTrait;
-use Drupal\ctek_common\Batch\Batch;
+use Drupal\ctek_common\Batch\ManagedBatch;
 use Drupal\ctek_common\Batch\BatchManagerTrait;
 use Psr\Log\LoggerInterface;
 
@@ -15,7 +15,7 @@ class BatchLogger implements LoggerInterface {
 
   protected static $batch;
 
-  public static function setCurrentBatch(Batch $batch) {
+  public static function setCurrentBatch(ManagedBatch $batch) {
     static::$batch = $batch;
   }
 

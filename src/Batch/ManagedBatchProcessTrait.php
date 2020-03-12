@@ -1,18 +1,16 @@
 <?php
 
-namespace Drupal\ctek_common\Import;
+namespace Drupal\ctek_common\Batch;
 
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Render\Markup;
-use Drupal\ctek_common\Batch\Batch;
-use Drupal\ctek_common\Batch\BatchManagerTrait;
 use Drupal\ctek_common\Logger\BatchLog;
 use Drupal\ctek_common\Logger\BatchLogger;
 use Drupal\user\UserInterface;
 use Drush\Utils\StringUtils;
 use Psr\Log\LoggerInterface;
 
-trait ImporterTrait {
+trait ManagedBatchProcessTrait {
   use BatchManagerTrait;
 
   protected static $logger;
@@ -36,7 +34,7 @@ trait ImporterTrait {
     return FALSE;
   }
 
-  public static function import(array $config = []) {
+  public static function process(array $config = []) {
     $batch = static::batchManager()->createBatch();
     $batch->config->add(
       $config + [
@@ -45,7 +43,7 @@ trait ImporterTrait {
     );
     $batch->config->set(static::STATE_KEY_HALTED, FALSE);
     $batch->addOperation([static::class, 'start']);
-    /** @var \Drupal\ctek_common\Import\ImportJobInterface $job */
+    /** @var \Drupal\ctek_common\Batch\ManagedBatchJobInterface $job */
     try {
       foreach (static::init($batch) as $job) {
         $job->createOperations($batch, [static::class, 'wrapCallback']);
@@ -66,7 +64,7 @@ trait ImporterTrait {
     static::batchManager()->run($batch);
   }
 
-  public static function start(Batch $batch) {
+  public static function start(ManagedBatch $batch) {
     $logger = static::logger();
     $stateKey = static::getStateKey();
     $previous = \Drupal::state()->get($stateKey);
@@ -89,7 +87,7 @@ trait ImporterTrait {
     static::logger()->notice('Running importer: !importer', ['!importer' => static::getName()]);
   }
 
-  public static function wrapCallback(Batch $batch, callable $callback, ...$arguments) {
+  public static function wrapCallback(ManagedBatch $batch, callable $callback, ...$arguments) {
     try {
       static::logger()->debug('Calling: !callback', ['!callback' => $callback[0] . '::' . $callback[1]]);
       $callback($batch, ...$arguments);
@@ -101,7 +99,7 @@ trait ImporterTrait {
     }
   }
 
-  public static function finished(Batch $batch) {
+  public static function finished(ManagedBatch $batch) {
     $stateKey = static::getStateKey();
     $hasErrors = FALSE;
     $log = BatchLogger::getLog($batch->getId());
@@ -127,11 +125,15 @@ trait ImporterTrait {
     ]);
   }
 
-  protected static function sendMail(Batch $batch) {
-    $notifyees = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties([
+  public static function getNotifyees(ManagedBatch $batch) : array {
+    return \Drupal::entityTypeManager()->getStorage('user')->loadByProperties([
       'status' => 1,
-      'roles' => static::IMPORT_NOTIFYEE_ROLE,
+      'roles' => 'administrator',
     ]);
+  }
+
+  protected static function sendMail(ManagedBatch $batch) {
+    $notifyees = static::getNotifyees($batch);
     if (count($notifyees) === 0) {
       return;
     }
@@ -143,7 +145,7 @@ trait ImporterTrait {
     }, $notifyees);
     /** @var \Drupal\Core\Mail\MailManagerInterface $mailManager */
     $mailManager = \Drupal::service('plugin.manager.mail');
-    $mailManager->mail('ctek_common', static::MAIL_KEY_IMPORT_EXCEPTION, '', $langCode, [
+    $mailManager->mail('ctek_common', static::MAIL_KEY_UNHANDLED_EXCEPTION, '', $langCode, [
       'notifyees' => $notifyees,
       'subject' => 'Warnings or Errors for importer: ' . static::getName(),
       'body' => static::formatLogsForMail(BatchLogger::getLog($batch->getId())),
