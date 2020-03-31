@@ -6,6 +6,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Database\Log;
 use Drupal\Core\Render\HtmlResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -57,13 +58,17 @@ class ProfilerSubscriber implements EventSubscriberInterface {
     return microtime(true) - self::$start;
   }
 
+  protected static function isRequestAMP(Request $request) {
+    return $request->query->has('amp');
+  }
+
   /**
    * Begin database logging, start the execution timer.
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function getRequest(GetResponseEvent $event) : void {
-    if (!$event->isMasterRequest()) {
+    if (!$event->isMasterRequest() || static::isRequestAMP($event->getRequest())) {
       return;
     }
     if (!self::$log) {
@@ -84,7 +89,7 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    */
   public function getResponse(FilterResponseEvent $event) : void {
     $response = $event->getResponse();
-    if (!$event->isMasterRequest() || !$response instanceof HtmlResponse) {
+    if (!$event->isMasterRequest() || !$response instanceof HtmlResponse || static::isRequestAMP($event->getRequest())) {
       return;
     }
     $queries = ProfilerSubscriber::getQueries();
