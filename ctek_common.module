@@ -274,12 +274,13 @@ function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, E
  * @param array $attachments
  */
 function ctek_common_page_attachments_alter(array &$attachments) {
+  $user = \Drupal::currentUser();
   $attachments['#attached']['library'][] = 'ctek_common/drupal-behavior';
   $attachments['#attached']['drupalSettings']['env'] = $_ENV['CTEK_ENV'];
-  if (\Drupal::currentUser()->hasPermission('access administration pages')) {
+  if ($user->hasPermission('access administration pages')) {
     $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
-  if (isset($_ENV['CTEK_GTM_ID']) && $_ENV['CTEK_ENV'] === 'prod') {
+  if (isset($_ENV['CTEK_GTM_ID']) && $_ENV['CTEK_ENV'] === 'prod' && $user->isAnonymous()) {
     $gtmId = $_ENV['CTEK_GTM_ID'];
     $script = <<<EOJS
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
