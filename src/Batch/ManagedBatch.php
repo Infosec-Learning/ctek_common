@@ -30,7 +30,11 @@ class ManagedBatch {
     if (!static::$currentBatch) {
       $sets = batch_get();
       if (isset($sets['current_set'])) {
-        $context = $sets['sets'][$sets['current_set']];
+        $i = $sets['current_set'];
+        do {
+          $context = $sets['sets'][$i];
+          $i--;
+        } while ($i >= 0 && count($context['results']) === 0);
         if (isset($context['results']['state'][static::STATE_KEY_ID])) {
           static::$currentBatch = static::createFromContext($context);
         }
