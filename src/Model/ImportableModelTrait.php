@@ -148,15 +148,17 @@ trait ImportableModelTrait {
     return $term;
   }
 
-  protected static function saveDownloadedFile($url, $destination, $contentTypes = []) {
+  protected static function saveDownloadedFile($url, $destination, $contentTypes = [], $filename = NULL) {
     $fileSystem = \Drupal::service('file_system');
     $fileStorage = \Drupal::entityTypeManager()->getStorage('file');
     $tempFilename = $fileSystem->tempnam('temporary://', 'import-downloads');
     $temp = fopen($tempFilename, 'w');
     $response = static::httpGetReliably($url);
-    if (count($contentTypes) > 0 && count(array_intersect($response->getHeader('Content-Type'), $contentTypes)) === 0) {
+    $mimeType = $response->getHeader('Content-Type');
+    if (count($contentTypes) > 0 && count(array_intersect($mimeType, $contentTypes)) === 0) {
       throw new \Exception('Got unexpected content type(s): ' . join(', ', $response->getHeader('Content-Type')));
     }
+    $mimeType = reset($mimeType);
     $body = $response->getBody();
     while ($body->isReadable() && !$body->eof()) {
       fwrite($temp, $response->getBody()->read(8192));
@@ -167,9 +169,15 @@ trait ImportableModelTrait {
       'uri' => $tempFilename,
       'status' => 1,
     ]);
-    $extension = pathinfo($url, PATHINFO_EXTENSION);
+    $file->setMimeType($mimeType);
+    if (!$filename) {
+      $filename = pathinfo($url, PATHINFO_FILENAME);
+    }
+    if (!$filename) {
+      $filename = $tempFilename;
+    }
     static::ensureDestination($destination);
-    $file = file_copy($file, $destination . '/' . $file->getFilename() . '.' . $extension, FileSystemInterface::EXISTS_REPLACE);
+    $file = file_copy($file, $destination . '/' . $filename, FileSystemInterface::EXISTS_REPLACE);
     if (!$file) {
       throw new \Exception('Unable to save file.');
     }
