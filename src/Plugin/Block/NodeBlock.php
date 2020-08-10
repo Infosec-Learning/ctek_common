@@ -71,15 +71,17 @@ class NodeBlock extends NodeAwareBlockBase implements ContainerFactoryPluginInte
   public function build() : array {
     $build = parent::build();
     if (!$build) {
-      return NULL;
+      return [];
     }
 
     $node = $this->getNode();
 
     $fields = $this->entityFieldManager->getFieldDefinitions('node', $node->bundle());
     foreach ($fields as $name => $definition) {
-      if (!$node->get($name)->isEmpty()) {
-        $build[$name] = $this->viewBuilder->viewField($node->get($name), $this->view_mode);
+      // Build render first and validate if empty.
+      $render = $this->viewBuilder->viewField($node->get($name), $this->view_mode);
+      if (!empty($render[0])) {
+        $build[$name] = $render;
       }
     }
 

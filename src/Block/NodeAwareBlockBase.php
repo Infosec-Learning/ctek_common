@@ -16,7 +16,7 @@ abstract class NodeAwareBlockBase extends BlockBase {
   public function build() : array {
     $node = $this->getNode();
     if (!$node instanceof NodeInterface) {
-      return NULL;
+      return [];
     }
     $build['#node'] = $node;
     return $build;

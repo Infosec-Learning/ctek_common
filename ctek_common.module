@@ -185,6 +185,10 @@ function ctek_common_preprocess_block(&$vars) {
     $blockEnhancerManager = \Drupal::service('plugin.manager.block_enhancer');
     $blockEnhancerManager->enhanceBlock($vars);
   }
+  // Adding node object to node blocks.
+  if(isset($vars['elements']['content']['#node'])) {
+    $vars['node'] = $vars['elements']['content']['#node'];
+  }  
 }
 
 /**
