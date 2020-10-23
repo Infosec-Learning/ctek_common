@@ -16,6 +16,7 @@ use Drupal\node\NodeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeForm;
 use Drupal\Core\Render\BubbleableMetadata;
+use Geocoder\Provider\Mapbox\Mapbox;
 
 function ctek_common_theme() {
   return [
@@ -463,3 +464,8 @@ function ctek_common_mail($key, &$message, $params) {
   }
 }
 
+function ctek_common_geocoder_provider_info_alter(&$plugins) {
+  if (isset($plugins['mapbox']) && trim($plugins['mapbox']['handler'], '\\') === Mapbox::class) {
+    $plugins['mapbox']['arguments']['geocodingMode'] = Mapbox::GEOCODING_MODE_PLACES_PERMANENT;
+  }
+}
