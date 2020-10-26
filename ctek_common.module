@@ -189,7 +189,7 @@ function ctek_common_preprocess_block(&$vars) {
   // Adding node object to node blocks.
   if(isset($vars['elements']['content']['#node'])) {
     $vars['node'] = $vars['elements']['content']['#node'];
-  }  
+  }
 }
 
 /**
@@ -321,7 +321,7 @@ function ctek_common_form_node_form_alter(&$form, FormStateInterface &$form_stat
   if ($form_id === 'node_page_edit_form') {
     //    $form['#attached']['library'][] = 'ctek_common/paragraph-type-fixes';
   }
-//  $form['menu']['link']['menu_link_weight']['#process'][] = 'ctek_common_menu_link_content_element_process';
+  //  $form['menu']['link']['menu_link_weight']['#process'][] = 'ctek_common_menu_link_content_element_process';
 }
 
 function ctek_common_form_node_form_process(&$form, FormStateInterface &$form_state) {
@@ -467,5 +467,24 @@ function ctek_common_mail($key, &$message, $params) {
 function ctek_common_geocoder_provider_info_alter(&$plugins) {
   if (isset($plugins['mapbox']) && trim($plugins['mapbox']['handler'], '\\') === Mapbox::class) {
     $plugins['mapbox']['arguments']['geocodingMode'] = Mapbox::GEOCODING_MODE_PLACES_PERMANENT;
+  }
+}
+
+function ctek_common_config_schema_info_alter(&$definitions) {
+  if (isset($definitions['geocoder_provider.configuration.mapbox'])) {
+    $definitions['geocoder_provider.configuration.mapbox']['mapping']['geocodingMode'] = [
+      'type' => 'string',
+      'label' => 'Geocoding Mode',
+    ];
+  }
+}
+
+function ctek_common_form_geocoder_provider_edit_form_alter(array &$form, FormStateInterface $formState) {
+  if (isset($form['options']['geocodingMode'])) {
+    $form['options']['geocodingMode']['#type'] = 'select';
+    $form['options']['geocodingMode']['#options'] = [
+      Mapbox::GEOCODING_MODE_PLACES => t('Temporary'),
+      Mapbox::GEOCODING_MODE_PLACES_PERMANENT => t('Permanent'),
+    ];
   }
 }
