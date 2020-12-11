@@ -66,11 +66,11 @@ trait ImportableModelTrait {
       throw new \LogicException();
     }
     if ($status === ImportableModelInterface::EXISTING_UNCHANGED) {
-      static::logger()->notice('No changes detected for !label', ['!label' => $definition['title']]);
+      static::logger()->notice('No changes detected for %label', ['%label' => $definition['title']]);
     } else {
-      static::logger()->notice('!action !label', [
-        '!label' => $definition['title'],
-        '!action' => $status === ImportableModelInterface::NEW ? 'Saving new' : 'Updating',
+      static::logger()->notice('%action %label', [
+        '%label' => $definition['title'],
+        '%action' => $status === ImportableModelInterface::NEW ? 'Saving new' : 'Updating',
       ]);
     }
     return [$model, $status];

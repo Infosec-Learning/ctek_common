@@ -49,9 +49,9 @@ trait ManagedBatchProcessTrait {
         $job->createOperations($batch, [static::class, 'wrapCallback']);
       }
     } catch (\Exception $e) {
-      $message = Markup::create(StringUtils::interpolate("Importer failed to start: !importer\nEncountered unhandled exception: !message", [
-        '!importer' => static::getName(),
-        '!message' => $e->getMessage(),
+      $message = Markup::create(StringUtils::interpolate("Importer failed to start: %importer\nEncountered unhandled exception: %message", [
+        '%importer' => static::getName(),
+        '%message' => $e->getMessage(),
       ]));
       \Drupal::messenger()->addError($message);
       static::logger()->error($message);
@@ -73,9 +73,9 @@ trait ManagedBatchProcessTrait {
         ->setTimestamp($previous['timestamp'])
         ->setTimezone(static::getTimezone())
         ->format(static::LOG_TIMESTAMP_FORMAT);
-      $logger->info('Last run at {previoustimestamp} with status: {previousstatus}.', [
-        'previoustimestamp' => $timestamp,
-        'previousstatus' => static::STATUS_MESSAGES[$previous['status']],
+      $logger->info('Last run at %previoustimestamp with status: %previousstatus.', [
+        '%previoustimestamp' => $timestamp,
+        '%previousstatus' => static::STATUS_MESSAGES[$previous['status']],
       ]);
     } else {
       $logger->info('No previous run on record.');
@@ -84,15 +84,15 @@ trait ManagedBatchProcessTrait {
       'timestamp' => time(),
       'status' => static::STATUS_INCOMPLETE,
     ]);
-    static::logger()->notice('Running importer: !importer', ['!importer' => static::getName()]);
+    static::logger()->notice('Running importer: %importer', ['%importer' => static::getName()]);
   }
 
   public static function wrapCallback(ManagedBatch $batch, callable $callback, ...$arguments) {
     try {
-      static::logger()->debug('Calling: !callback', ['!callback' => $callback[0] . '::' . $callback[1]]);
+      static::logger()->debug('Calling: %callback', ['%callback' => $callback[0] . '::' . $callback[1]]);
       $callback($batch, ...$arguments);
     } catch (\Exception $e) {
-      static::logger()->error('Callback threw an unhandled exception: !message', ['!message' => $e->getMessage()]);
+      static::logger()->error('Callback threw an unhandled exception: %message', ['%message' => $e->getMessage()]);
       if (static::haltOnUnhandledException()) {
         $batch->halt();
       }
@@ -110,11 +110,11 @@ trait ManagedBatchProcessTrait {
       }
     }
     if ($batch->isHalted()) {
-      \Drupal::messenger()->addError(StringUtils::interpolate('Importer encountered an unhandled exception and was halted: !importer', ['!importer' => static::getName()]));
+      \Drupal::messenger()->addError(StringUtils::interpolate('Importer encountered an unhandled exception and was halted: %importer', ['%importer' => static::getName()]));
     } elseif ($hasErrors) {
-      \Drupal::messenger()->addWarning(StringUtils::interpolate('Finished running importer, with warnings or errors: !importer', ['!importer' => static::getName()]));
+      \Drupal::messenger()->addWarning(StringUtils::interpolate('Finished running importer, with warnings or errors: %importer', ['%importer' => static::getName()]));
     } else {
-      \Drupal::messenger()->addStatus(StringUtils::interpolate('Finished running importer: !importer', ['!importer' => static::getName()]));
+      \Drupal::messenger()->addStatus(StringUtils::interpolate('Finished running importer: %importer', ['%importer' => static::getName()]));
     }
     if ($hasErrors && $batch->config->get(static::CONFIG_KEY_SEND_MAIL)) {
       static::sendMail($batch);

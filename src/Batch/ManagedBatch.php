@@ -81,7 +81,7 @@ class ManagedBatch {
       // Remove direct access to context, call callback
       $callback($batch, ...array_slice($arguments, 0, -1));
     } catch (\Exception $e) {
-      \Drupal::logger('default')->emergency('Callback threw an unhandled exception: !message', ['!message' => $e->getMessage()]);
+      \Drupal::logger('default')->emergency('Callback threw an unhandled exception: %message', ['%message' => $e->getMessage()]);
       if ($batch->config->get(static::CONFIG_KEY_HALT_ON_UNHANDLED_EXCEPTION)) {
         $batch->halt();
       }
