@@ -171,7 +171,7 @@ trait ImportableModelTrait {
     ]);
     $file->setMimeType($mimeType);
     if (!$filename) {
-      $filename = pathinfo($url, PATHINFO_FILENAME);
+      $filename = pathinfo($url, PATHINFO_FILENAME) . '.' . pathinfo($url, PATHINFO_EXTENSION);
     }
     if (!$filename) {
       $filename = $tempFilename;
