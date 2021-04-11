@@ -447,7 +447,6 @@ function ctek_common_tokens($type, $tokens, array $data, array $options, Bubblea
           $replacements[$original] = $model->{$methodName}($options, $bubbleable_metadata);
         }
       }
-      break;
     }
   }
   return $replacements;
