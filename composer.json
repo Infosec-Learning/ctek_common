@@ -3,6 +3,6 @@
   "type": "drupal-custom-module",
   "require": {
     "phpseclib/phpseclib": "^2.0",
-    "willdurand/geocoder": "^3.3"
+    "willdurand/geocoder": "^4.3"
   }
 }
