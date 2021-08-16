@@ -1,5 +1,6 @@
 <?php
 
+use Centretek\Environment\Environment;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
@@ -281,11 +282,11 @@ function ctek_common_paragraph_view(array &$build, ParagraphInterface $entity, E
 function ctek_common_page_attachments_alter(array &$attachments) {
   $user = \Drupal::currentUser();
   $attachments['#attached']['library'][] = 'ctek_common/drupal-behavior';
-  $attachments['#attached']['drupalSettings']['env'] = $_ENV['CTEK_ENV'];
+  $attachments['#attached']['drupalSettings']['env'] = $env = Environment::getEnvironment();
   if ($user->hasPermission('access administration pages')) {
     $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
-  if (isset($_ENV['CTEK_GTM_ID']) && $_ENV['CTEK_ENV'] === 'prod' && $user->isAnonymous()) {
+  if (isset($_ENV['CTEK_GTM_ID']) && $env === Environment::PROD && $user->isAnonymous()) {
     $gtmId = $_ENV['CTEK_GTM_ID'];
     $script = <<<EOJS
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
