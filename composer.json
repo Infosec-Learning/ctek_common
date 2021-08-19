@@ -15,7 +15,8 @@
         "symfony/string": "5.0.0-RC1",
         "willdurand/geocoder": "^4.3",
         "drupal/swiftmailer": "^2.0",
-        "drupal/mailsystem": "^4.2"
+        "drupal/mailsystem": "^4.2",
+        "centretek/environment": "^1.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -23,6 +24,10 @@
         {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:centretek/environment.git"
         }
     ]
 }

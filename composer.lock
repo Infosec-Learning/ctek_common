@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd617fb850fb3080db7a66808724b57f",
+    "content-hash": "2bd792cb7151e66f0e67d096b3687dde",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -57,6 +57,29 @@
                 "stack"
             ],
             "time": "2019-12-24T22:41:47+00:00"
+        },
+        {
+            "name": "centretek/environment",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "git@bitbucket.org:centretek/environment.git",
+                "reference": "201d34b31ba2a5b67b55b848254f87855d9d17a1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Centretek\\Environment\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Patrick Wilson",
+                    "email": "pwilson@centretek.com"
+                }
+            ],
+            "description": "Common classes for determining platform and environment.",
+            "time": "2021-08-06T16:59:54+00:00"
         },
         {
             "name": "composer/semver",
@@ -4624,5 +4647,6 @@
         "ext-xmlwriter": "*",
         "ext-xmlreader": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
 }
