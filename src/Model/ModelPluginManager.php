@@ -55,10 +55,12 @@ class ModelPluginManager extends DefaultPluginManager {
     return $definitions;
   }
 
-  public function wrap(ContentEntityInterface $entity) : ?ModelInterface {
-    foreach ($this->getDefinitions() as $id => $definition) {
-      if ($definition['entityType'] === $entity->getEntityTypeId() && $definition['bundle'] === $entity->bundle()) {
-        return $this->createInstance($id, ['entity' => $entity]);
+  public function wrap(?ContentEntityInterface $entity) : ?ModelInterface {
+    if ($entity instanceof ContentEntityInterface) {
+      foreach ($this->getDefinitions() as $id => $definition) {
+        if ($definition['entityType'] === $entity->getEntityTypeId() && $definition['bundle'] === $entity->bundle()) {
+          return $this->createInstance($id, ['entity' => $entity]);
+        }
       }
     }
     return NULL;
