@@ -1,7 +1,6 @@
 <?php
 
 use Centretek\Environment\Environment;
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -96,20 +95,7 @@ function ctek_common_preprocess_paragraph(&$vars) {
   $entity = $vars['paragraph'];
   $vars['attributes']['data-paragraph-type'] = $entity->bundle();
   $vars['attributes']['data-paragraph-view-mode'] = $vars['view_mode'];
-  switch ($entity->bundle()) {
-    case 'tabs':
-      $tabs = [];
-      foreach (Element::children($vars['content']['field_items']) as $index => $child) {
-        $id = Html::getUniqueId('tab') . '-' . ($index + 1);
-        $tab = $vars['content']['field_items'][$child]['#paragraph'];
-        if ($tab instanceof ParagraphInterface && $tab->bundle() === 'tab') {
-          $tabs[$id] = $tab->get('field_title')->getString();
-          $vars['content']['field_items'][$child]['#attributes']['id'] = $id;
-        }
-      }
-      $vars['tabs'] = $tabs;
-      break;
-  }
+
   if (
     $entity->hasField('field_heading_type')
     &&
