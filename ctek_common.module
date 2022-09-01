@@ -269,7 +269,7 @@ function ctek_common_page_attachments_alter(array &$attachments) {
   $user = \Drupal::currentUser();
   $attachments['#attached']['library'][] = 'ctek_common/drupal-behavior';
   $attachments['#attached']['drupalSettings']['env'] = $env = Environment::getEnvironment();
-  if ($user->hasPermission('access administration pages')) {
+  if ($user->hasPermission('profiler access')) {
     $attachments['#attached']['library'][] = 'ctek_common/profiler';
   }
   if (isset($_ENV['CTEK_GTM_ID']) && $env === Environment::PROD && $user->isAnonymous()) {

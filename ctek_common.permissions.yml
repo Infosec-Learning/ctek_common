@@ -1,0 +1,4 @@
+profiler access:
+  title: 'Access CTEK Common profiler'
+  description: 'View the CTEK common profiler.'
+  restrict access: true
