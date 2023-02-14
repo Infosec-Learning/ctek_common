@@ -12,7 +12,6 @@
         "phpseclib/phpseclib": "^2.0",
         "stechstudio/backoff": "^1.0.1",
         "suramon/simple-xml-reader": "^1.2.2",
-        "symfony/string": "5.0.0-RC1",
         "willdurand/geocoder": "^4.3",
         "drupal/mailsystem": "^4.2",
         "centretek/environment": "^1.0"
