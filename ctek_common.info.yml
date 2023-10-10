@@ -2,7 +2,7 @@ name: 'Centretek Common'
 description: 'Contains common interfaces, controllers, and annotations used by other Centretek modules.'
 package: 'Centretek'
 type: module
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^8.8 || ^9 || ^10
 dependencies:
   - node
   - block
