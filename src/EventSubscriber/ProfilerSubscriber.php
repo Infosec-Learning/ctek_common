@@ -8,8 +8,8 @@ use Drupal\Core\Database\Log;
 use Drupal\Core\Render\HtmlResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -66,9 +66,9 @@ class ProfilerSubscriber implements EventSubscriberInterface {
   /**
    * Begin database logging, start the execution timer.
    *
-   * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
+   * @param RequestEvent $event
    */
-  public function getRequest(GetResponseEvent $event) : void {
+  public function getRequest(RequestEvent $event) : void {
     if (!$event->isMasterRequest() || static::isRequestAMP($event->getRequest())) {
       return;
     }
@@ -84,11 +84,11 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    * Stop database logging, stop the execution timer, output the profiling
    * information.
    *
-   * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
+   * @param ResponseEvent $event
    *
-   * @throws \ReflectionException
+   * @throws \Exception
    */
-  public function getResponse(FilterResponseEvent $event) : void {
+  public function getResponse(ResponseEvent $event) : void {
     $response = $event->getResponse();
     if (!$event->isMasterRequest() || !$response instanceof HtmlResponse || static::isRequestAMP($event->getRequest())) {
       return;

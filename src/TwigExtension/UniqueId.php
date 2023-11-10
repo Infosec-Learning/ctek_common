@@ -3,8 +3,10 @@
 namespace Drupal\ctek_common\TwigExtension;
 
 use Drupal\Component\Utility\Html;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
-class UniqueId extends \Twig_Extension {
+class UniqueId extends AbstractExtension {
 
   public function getName() {
     return 'ctek_common.unique_id';
@@ -12,7 +14,7 @@ class UniqueId extends \Twig_Extension {
 
   public function getFunctions() {
     return [
-      new \Twig_SimpleFunction('getUniqueId', [$this, 'getUniqueId'])
+      new TwigFunction('getUniqueId', [$this, 'getUniqueId'])
     ];
   }
 

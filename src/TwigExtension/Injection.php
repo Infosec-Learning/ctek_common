@@ -2,7 +2,10 @@
 
 namespace Drupal\ctek_common\TwigExtension;
 
-class Injection extends \Twig_Extension {
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+
+class Injection extends AbstractExtension {
 
   public function getName() {
     return 'ctek_common.injection';
@@ -10,8 +13,8 @@ class Injection extends \Twig_Extension {
 
   public function getFilters() {
     return [
-      new \Twig_SimpleFilter('inject', [$this, 'inject']),
-      new \Twig_SimpleFilter('bare', [$this, 'bare']),
+      new TwigFilter('inject', [$this, 'inject']),
+      new TwigFilter('bare', [$this, 'bare']),
     ];
   }
 
