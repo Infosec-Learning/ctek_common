@@ -46,7 +46,7 @@ class BatchLogger implements LoggerInterface {
     }
   }
 
-  public function log($level, $message, array $context = []) {
+  public function log($level, $message, array $context = []): void {
     $batch = static::$batch ?: static::batchManager()->getCurrentBatch();
     if ($batch) {
       if (!$this->logFile) {
