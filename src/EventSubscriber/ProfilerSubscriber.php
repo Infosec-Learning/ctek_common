@@ -69,7 +69,7 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    * @param RequestEvent $event
    */
   public function getRequest(RequestEvent $event) : void {
-    if (!$event->isMasterRequest() || static::isRequestAMP($event->getRequest())) {
+    if (!$event->isMainRequest() || static::isRequestAMP($event->getRequest())) {
       return;
     }
     if (!self::$log) {
