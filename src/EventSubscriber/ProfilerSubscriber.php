@@ -90,7 +90,7 @@ class ProfilerSubscriber implements EventSubscriberInterface {
    */
   public function getResponse(ResponseEvent $event) : void {
     $response = $event->getResponse();
-    if (!$event->isMasterRequest() || !$response instanceof HtmlResponse || static::isRequestAMP($event->getRequest())) {
+    if (!$event->isMainRequest() || !$response instanceof HtmlResponse || static::isRequestAMP($event->getRequest())) {
       return;
     }
     $queries = ProfilerSubscriber::getQueries();
