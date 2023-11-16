@@ -14,6 +14,7 @@ trait EntityReferenceTrait {
     $storage = \Drupal::entityTypeManager()->getStorage($entityTypeId);
     $entities = [];
     $query = $storage->getQuery();
+    $query->accessCheck(FALSE);
     if (is_callable($queryCallback)) {
       $queryCallback($query);
     }
